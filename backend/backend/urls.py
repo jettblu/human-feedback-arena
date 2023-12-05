@@ -27,6 +27,6 @@ router.register(r'comparisons', views.Comparison_View, 'comparison')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path("api/experimentResource/<str:experiment_name>",
-         views.get_experiment_resource)
+    path('api/experimentSummary/<str:experiment_name>/',
+         views.GetExperimentSummary.as_view()),
 ]

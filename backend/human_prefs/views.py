@@ -11,8 +11,11 @@ from .models import Comparison
 
 from django.http import HttpResponse
 from .serializers import Comparison_Serializer
+from rest_framework.renderers import JSONRenderer
 from rest_framework import viewsets
+from rest_framework.response import Response
 from .models import Comparison
+from rest_framework.views import APIView
 
 
 register = template.Library()
@@ -40,6 +43,8 @@ def _build_experiment_resource(experiment_name):
     try:
         started_at = comparisons.order_by('-created_at').first().created_at
         pretty_time_elapsed = _pretty_time_elapsed(started_at, timezone.now())
+        # convert started_at to string
+        started_at = started_at.strftime("%Y-%m-%d")
     except AttributeError:
         started_at = None
         pretty_time_elapsed = None
@@ -51,10 +56,13 @@ def _build_experiment_resource(experiment_name):
     )
 
 
-def get_experiment_resource(experiment_name):
-    exp = _build_experiment_resource(experiment_name)
-    # return http response
-    return HttpResponse(exp, content_type="application/json", status=200)
+class GetExperimentSummary(APIView):
+    renderer_classes = [JSONRenderer]
+    # here we don't need to serialize the data, so
+
+    def get(self, request, experiment_name):
+        exp = _build_experiment_resource(experiment_name)
+        return Response({'name': exp.name, 'num_responses': exp.num_responses, 'started_at': exp.started_at, 'pretty_time_elapsed': exp.pretty_time_elapsed})
 
 
 def _all_comparisons(experiment_name, use_locking=True):

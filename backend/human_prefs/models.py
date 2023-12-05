@@ -18,8 +18,6 @@ def validate_inclusion_of_response_kind(value):
 #     name = models.TextField("name of the experiment", default="")
 #     num_responses = models.FloatField("number of comparisons completed")
 #     started_at = models.Text
-
-
 class Comparison(models.Model):
     created_at = models.DateTimeField(
         'date created', auto_now_add=True, db_index=True)
