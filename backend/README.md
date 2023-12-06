@@ -1,3 +1,9 @@
+### Package Installations
+
+```bash
+pip install -r requirements.txt
+```
+
 ### App Migrations
 
 Make migrations with the following command.
