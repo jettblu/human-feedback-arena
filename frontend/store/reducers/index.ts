@@ -1,4 +1,6 @@
+import { Observation } from "@/types";
 import {
+  ADD_OBSERVATION,
   CLEAR_ALL_GAME_DATA,
   DOWN,
   INCREASE_SNAKE,
@@ -9,6 +11,7 @@ import {
   RESET_SCORE,
   RIGHT,
   SET_DIS_DIRECTION,
+  SET_OBSERVATION_REQUIREMENT,
   UP,
 } from "../actions";
 
@@ -16,7 +19,11 @@ export interface IGlobalState {
   snake: ISnakeCoord[] | [];
   disallowedDirection: string;
   score: number;
-  prev_scores: number[];
+  personalBest: number;
+  observations: Observation[];
+  experimentName: string;
+  obersvationsRequired: number;
+  totalObservations: number;
 }
 
 const firstSnakeBit = { x: 580, y: 300 };
@@ -31,7 +38,11 @@ const globalState: IGlobalState = {
   ],
   disallowedDirection: "",
   score: 0,
-  prev_scores: [],
+  personalBest: 0,
+  experimentName: "",
+  observations: [],
+  obersvationsRequired: 0,
+  totalObservations: 0,
 };
 const gameReducer = (state = globalState, action: any) => {
   switch (action.type) {
@@ -48,7 +59,6 @@ const gameReducer = (state = globalState, action: any) => {
         ...newSnake,
       ];
       newSnake.pop();
-
       return {
         ...state,
         snake: newSnake,
@@ -85,7 +95,14 @@ const gameReducer = (state = globalState, action: any) => {
       };
 
     case RESET_SCORE:
-      state.prev_scores.push(state.score);
+      // update personal best if need be
+      if (state.score > state.personalBest) {
+        return {
+          ...state,
+          score: 0,
+          personalBest: state.score,
+        };
+      }
       return {
         ...state,
         score: 0,
@@ -96,11 +113,22 @@ const gameReducer = (state = globalState, action: any) => {
         ...state,
         score: state.score + 1,
       };
+    case ADD_OBSERVATION:
+      return {
+        ...state,
+        obersvations: [...state.observations, action.payload],
+        totalObservations: state.totalObservations + 1,
+      };
+    case SET_OBSERVATION_REQUIREMENT:
+      return {
+        ...state,
+        obersvationsRequired: action.payload,
+      };
     case CLEAR_ALL_GAME_DATA:
       return {
         ...state,
         score: 0,
-        prev_scores: [],
+        personalBest: 0,
         snake: [
           { x: firstSnakeBit.x, y: firstSnakeBit.y },
           { x: firstSnakeBit.x - 20, y: firstSnakeBit.y },

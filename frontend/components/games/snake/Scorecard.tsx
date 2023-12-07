@@ -3,12 +3,11 @@ import { IGlobalState } from "@/store/reducers";
 
 const ScoreCard = () => {
   const score = useSelector((state: IGlobalState) => state.score);
-  const prev_scores = useSelector((state: IGlobalState) => state.prev_scores);
-  const max_of_prev_scores = prev_scores.reduce((a, b) => Math.max(a, b), 0);
+  const personalBest = useSelector((state: IGlobalState) => state.personalBest);
   return (
     <div>
       <div className="my-5 text-xl font-bold">
-        Your High Score: {max_of_prev_scores}
+        Your High Score: {personalBest}
       </div>
       <div className="my-5 text-xl font-bold">Current Score: {score}</div>
     </div>

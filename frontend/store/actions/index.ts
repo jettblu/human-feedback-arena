@@ -1,3 +1,5 @@
+import { Observation } from "@/types";
+
 export const MOVE_RIGHT = "MOVE_RIGHT";
 export const MOVE_LEFT = "MOVE_LEFT";
 export const MOVE_UP = "MOVE_UP";
@@ -18,6 +20,8 @@ export const INCREASE_SNAKE = "INCREASE_SNAKE";
 export const INCREMENT_SCORE = "INCREMENT_SCORE";
 export const CLEAR_ALL_GAME_DATA = "RESET_ALL_GAME_DATA";
 export const RESET_SCORE = "RESET_SCORE";
+export const ADD_OBSERVATION = "ADD_OBSERVATION";
+export const SET_OBSERVATION_REQUIREMENT = "SET_OBSERVATION_REQUIREMENT";
 export interface ISnakeCoord {
   x: number;
   y: number;
@@ -51,4 +55,14 @@ export const scoreUpdates = (type: string) => ({
 
 export const clearAllGameData = () => ({
   type: CLEAR_ALL_GAME_DATA,
+});
+
+export const addObservation = (observation: Observation) => ({
+  type: ADD_OBSERVATION,
+  payload: observation,
+});
+
+export const setObservationRequirement = (observationsCount: number) => ({
+  type: SET_OBSERVATION_REQUIREMENT,
+  payload: observationsCount,
 });
