@@ -1,16 +1,48 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Game_Font } from "./layout";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col p-8">
-      <div className="max-w-4xl mx-auto w-full">
-        <h1 className="text-4xl font-bold text-left">RLHF in the Browser</h1>
+    <main className="min-h-screen">
+      {/* this div content should be centered in the middle of the page vertically and horizontally */}
+      {/* ensure centered */}
+      <div className="flex flex-col items-center justify-center min-h-screen max-w-5xl mx-auto">
+        <div className="flex flex-col items-center justify-center">
+          <h1
+            className={`text-4xl font-bold text-left text-green-500 ${Game_Font.className}`}
+          >
+            RL Arcade
+          </h1>
+          <p className="text-2xl text-center text-yellow-500">
+            Incoporate human preferences into RL agents while playing online
+            games.
+          </p>
+          <div className="flex flex-col items-center justify-center">
+            <Link href="experiments/new">
+              <p className="font-semibold underline my-3 hover:text-blue-600 transition duration-100">
+                Begin Training
+              </p>
+            </Link>
+            <Link href="experiments/archive">
+              <p className="font-semibold underline my-3 hover:text-blue-600 transition duration-100">
+                View Old Experiments
+              </p>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className="max-w-4xl mx-auto w-full">
+        <h1 className={`text-4xl font-bold text-left ${Game_Font.className}`}>
+          RL Arcade
+        </h1>
         <p className="text-xl">
           A browser-based version of reinforcement with human feedback.
         </p>
-      </div>
-      <div className="max-w-4xl w-full flex md:flex-row flex-col space-y-8 md:space-y-0 md:space-x-8 w-full mx-auto my-16">
+      </div> */}
+
+      {/* <div className="max-w-4xl w-full flex md:flex-row flex-col space-y-8 md:space-y-0 md:space-x-8 w-full mx-auto my-16">
         <div className="flex flex-col">
           <div className="rounded-tl-lg rounded-tr-lg flex flex-col md:flex-row bg-gray-400/20 mx-auto w-full">
             <Image
@@ -68,8 +100,8 @@ export default function Home() {
               </li>
             </ul>
           </div>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
     </main>
   );
 }
