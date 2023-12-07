@@ -12,8 +12,11 @@ import {
   MOVE_UP,
   resetGame,
   RESET_SCORE,
+  setLastAction,
   scoreUpdates,
   stopGame,
+  setLastReward,
+  setFood,
 } from "@/store/actions";
 import { IGlobalState } from "@/store/reducers";
 import {
@@ -26,6 +29,7 @@ import {
   isRight,
   isUp,
   isLeft,
+  getAction,
 } from "@/utils";
 import Instruction from "./Instructions";
 
@@ -46,14 +50,12 @@ export interface ICanvasBoard {
 const CanvasBoard = ({ height, width }: ICanvasBoard) => {
   const dispatch = useDispatch();
   const snake1 = useSelector((state: IGlobalState) => state.snake);
+  const food = useSelector((state: IGlobalState) => state.food);
   const disallowedDirection = useSelector(
     (state: IGlobalState) => state.disallowedDirection
   );
 
   const [gameEnded, setGameEnded] = useState<boolean>(false);
-  const [pos, setPos] = useState<IObjectBody>(
-    generateRandomPosition(width - 20, height - 20)
-  );
   const [isConsumed, setIsConsumed] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
@@ -81,25 +83,33 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
 
   function handleMovement(event: KeyboardEvent) {
     const key = event.key;
-
+    let isValidKey = false;
     if (isUp(key)) {
       event.preventDefault();
       moveSnake(0, -20, disallowedDirection);
+      isValidKey = true;
     } else if (isDown(key)) {
       event.preventDefault();
       moveSnake(0, 20, disallowedDirection);
+      isValidKey = true;
     } else if (isRight(key)) {
       event.preventDefault();
       moveSnake(20, 0, disallowedDirection);
+      isValidKey = true;
     } else if (isLeft(key)) {
       event.preventDefault();
       moveSnake(-20, 0, disallowedDirection);
+      isValidKey = true;
+    }
+    if (isValidKey) {
+      // get action
+      const action = getAction(key, disallowedDirection);
+      dispatch(setLastAction(action));
     }
   }
 
   const handleKeyEvents = useCallback(
     (event: KeyboardEvent) => {
-      console.log(event.key);
       if (disallowedDirection) {
         handleMovement(event);
       } else {
@@ -122,39 +132,39 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     dispatch(scoreUpdates(RESET_SCORE));
     clearBoard(context);
     drawObject(context, snake1, "#91C483");
-    drawObject(
-      context,
-      [generateRandomPosition(width - 20, height - 20)],
-      "#676FA3"
-    ); //Draws object randomly
+    let newFood = generateRandomPosition(width - 20, height - 20);
+    drawObject(context, [newFood], "red"); //Draws object randomly
+    dispatch(setFood(newFood));
     window.addEventListener("keydown", handleKeyEvents);
   }, [context, dispatch, handleKeyEvents, height, snake1, width]);
 
   useEffect(() => {
     //Generate new object
     if (isConsumed) {
-      const posi = generateRandomPosition(width - 40, height - 40);
-      setPos(posi);
       setIsConsumed(false);
+      setLastReward(0);
 
       //Increase snake size when object is consumed successfully
       dispatch(increaseSnake());
+      dispatch(setFood(generateRandomPosition(width - 40, height - 40)));
 
       //Increment the score
       dispatch(scoreUpdates(INCREMENT_SCORE));
     }
-  }, [isConsumed, pos, height, width, dispatch]);
+  }, [isConsumed, food, height, width, dispatch]);
 
   useEffect(() => {
     //Draw on canvas each time
     setContext(canvasRef.current && canvasRef.current.getContext("2d"));
     clearBoard(context);
     drawObject(context, snake1, "#91C483");
-    drawObject(context, [pos], "red"); //Draws food at random position
+
+    drawObject(context, [food], "red");
 
     //When the object is consumed
-    if (snake1[0].x === pos?.x && snake1[0].y === pos?.y) {
+    if (snake1[0].x === food?.x && snake1[0].y === food?.y) {
       setIsConsumed(true);
+      dispatch(setLastReward(1));
     }
 
     if (
@@ -164,12 +174,17 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
       snake1[0].y <= 0 ||
       snake1[0].y >= height
     ) {
+      dispatch(setLastReward(-1));
       setGameEnded(true);
       dispatch(stopGame());
-      resetBoard();
+      // play game over sound
       window.removeEventListener("keydown", handleKeyEvents);
+      // wait for two seconds before resetting the board
+      setTimeout(() => {
+        resetBoard();
+      }, 2000);
     } else setGameEnded(false);
-  }, [context, pos, snake1, height, width, dispatch, handleKeyEvents]);
+  }, [context, food, snake1, height, width, dispatch, handleKeyEvents]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyEvents);

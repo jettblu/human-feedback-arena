@@ -11,6 +11,7 @@ export const LEFT = "LEFT";
 export const UP = "UP";
 
 export const DOWN = "DOWN";
+export const STRAIGHT = "STRAIGHT";
 
 export const SET_DIS_DIRECTION = "SET_DIS_DIRECTION";
 
@@ -22,6 +23,11 @@ export const CLEAR_ALL_GAME_DATA = "RESET_ALL_GAME_DATA";
 export const RESET_SCORE = "RESET_SCORE";
 export const ADD_OBSERVATION = "ADD_OBSERVATION";
 export const SET_OBSERVATION_REQUIREMENT = "SET_OBSERVATION_REQUIREMENT";
+export const SET_LAST_ACTION = "SET_LAST_ACTION";
+export const SET_FOOD = "SET_FOOD";
+export const SET_LAST_REWARD = "SET_LAST_REWARD";
+export const SET_EXPERIMENT_NAME = "SET_EXPERIMENT_NAME";
+export const SET_EXPERIMENT_DESCRIPTION = "SET_EXPERIMENT_DESCRIPTION";
 export interface ISnakeCoord {
   x: number;
   y: number;
@@ -30,6 +36,21 @@ export interface ISnakeCoord {
 export const makeMove = (dx: number, dy: number, move: string) => ({
   type: move,
   payload: [dx, dy],
+});
+
+export const setLastAction = (action: string) => ({
+  type: SET_LAST_ACTION,
+  payload: action,
+});
+
+export const setLastReward = (reward: number) => ({
+  type: SET_LAST_REWARD,
+  payload: reward,
+});
+
+export const setFood = (food: ISnakeCoord) => ({
+  type: SET_FOOD,
+  payload: food,
 });
 
 export const setDisDirection = (direction: string) => ({
@@ -65,4 +86,14 @@ export const addObservation = (observation: Observation) => ({
 export const setObservationRequirement = (observationsCount: number) => ({
   type: SET_OBSERVATION_REQUIREMENT,
   payload: observationsCount,
+});
+
+export const setExperimentName = (name: string) => ({
+  type: SET_EXPERIMENT_NAME,
+  payload: name,
+});
+
+export const setExperimentDescription = (description: string) => ({
+  type: SET_EXPERIMENT_DESCRIPTION,
+  payload: description,
 });

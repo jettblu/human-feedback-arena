@@ -1,3 +1,5 @@
+import { Action, Direction } from "@/types";
+
 export const clearBoard = (context: CanvasRenderingContext2D | null) => {
   if (context) {
     context.clearRect(0, 0, 1000, 600);
@@ -68,4 +70,53 @@ export function isUp(key: string) {
 
 export function isDown(key: string) {
   return key === "ArrowDown" || key === "s";
+}
+
+// returns action so that left represents any counter clockwise action and right represents any clockwise action
+export function getAction(key: string, disDirection: string): Action {
+  disDirection = disDirection.toLowerCase();
+  if (isUp(key) && disDirection == "right") {
+    return "right";
+  }
+  if (isDown(key) && disDirection == "right") {
+    return "left";
+  }
+  if (isDown(key) && disDirection == "left") {
+    return "right";
+  }
+  if (isUp(key) && disDirection == "left") {
+    return "left";
+  }
+  if (isLeft(key) && disDirection == "up") {
+    return "left";
+  }
+  if (isRight(key) && disDirection == "up") {
+    return "left";
+  }
+  if (isRight(key) && disDirection == "down") {
+    return "right";
+  }
+  if (isLeft(key) && disDirection == "down") {
+    return "left";
+  }
+
+  return "none";
+}
+
+export function reverseDirection(direction: string): Direction {
+  direction = direction.toLowerCase();
+  if (direction === "up") {
+    return "down";
+  }
+  if (direction === "down") {
+    return "up";
+  }
+  if (direction === "left") {
+    return "right";
+  }
+  if (direction === "right") {
+    return "left";
+  }
+  // should not happen
+  return "up";
 }
