@@ -1,4 +1,4 @@
-import { IExperiment, IExperimentSummary } from "@/types";
+import { IExperiment, IExperimentSummary, Observation } from "@/types";
 const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default async function getExperimentSummary(
@@ -38,6 +38,33 @@ export async function getExperiment(
   }
 }
 
+export async function createExperiment(
+  experiment_name: string,
+  experiment_description: string
+): Promise<IExperiment | null> {
+  const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL;
+  // fetch the experiment data
+  try {
+    const full_url = `${backend_url}/api/experiments/`;
+    const res: Response = await fetch(full_url, {
+      method: "POST",
+      // should be json content header
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: experiment_name,
+        description: experiment_description,
+      }),
+    });
+    const experiment: IExperiment = await res.json();
+    return experiment;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
 export async function getAllExperiments(): Promise<IExperiment[] | null> {
   const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL;
   // fetch the experiment data
@@ -51,5 +78,30 @@ export async function getAllExperiments(): Promise<IExperiment[] | null> {
   } catch (err) {
     console.log(err);
     return null;
+  }
+}
+
+export async function uploadTrainingData(
+  experiment_id: string,
+  training_data: Observation[]
+): Promise<boolean> {
+  const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL;
+  // fetch the experiment data
+  try {
+    const full_url = `${backend_url}/api/experiment/${experiment_id}/uploadTrainingData/`;
+    console.log("training data", training_data);
+    // json stringify the training data
+    const res: Response = await fetch(full_url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ training_data: training_data }),
+    });
+    const experiment: IExperiment = await res.json();
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }

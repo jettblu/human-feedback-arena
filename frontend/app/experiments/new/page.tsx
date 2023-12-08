@@ -13,6 +13,8 @@ import { reverseDirection } from "@/utils";
 import { Direction } from "@/types";
 import { addObservation } from "@/store/actions";
 import CreateExperimentCard from "@/components/games/snake/CreateExperimentCard";
+import { uploadTrainingData } from "@/helpers/requests";
+import EndCard from "@/components/games/snake/EndCard";
 
 // import snake game from the phaser lib
 enum Task {
@@ -23,7 +25,7 @@ enum Task {
 
 export default function Home() {
   const [task_human, set_task_human] = useState<Task>(Task.introduction);
-  function handleGameEnd() {
+  async function handleGameEnd() {
     set_task_human(Task.done_training);
   }
   function habndleDoneWithIntro() {
@@ -55,6 +57,13 @@ export default function Home() {
           {task_human === Task.training && (
             <TrainingBoard handleGameEnd={handleGameEnd} />
           )}
+          {task_human === Task.done_training && (
+            <div className="mx-auto w-fit">
+              <div className="flex flex-col items-center justify-center min-h-screen max-w-5xl mx-auto lg:-mt-32">
+                <EndCard />{" "}
+              </div>
+            </div>
+          )}
         </Provider>
       </div>
     </main>
@@ -69,6 +78,7 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
   const lastSnake = useSelector((state: IGlobalState) => state.lastSnake);
   const lastAction = useSelector((state: IGlobalState) => state.lastAction);
   const lastReward = useSelector((state: IGlobalState) => state.lastReward);
+  const experimentId = useSelector((state: IGlobalState) => state.experimentId);
   const [counter, setCounter] = useState<number>(0);
   const dispatch = useDispatch();
   const disallowedDirection = useSelector(
@@ -111,7 +121,12 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
   }, [lastReward]);
 
   useEffect(() => {
+    if (experimentId == null) {
+      console.error("experimentId is null. unable to upload training data.");
+      return;
+    }
     if (totalObservations >= observationsRequired) {
+      uploadTrainingData(experimentId, observations);
       handleGameEnd();
     }
   }, [totalObservations]);

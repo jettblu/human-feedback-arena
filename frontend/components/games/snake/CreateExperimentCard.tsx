@@ -2,25 +2,41 @@ import { useState } from "react";
 import {
   clearAllGameData,
   setExperimentDescription,
+  setExperimentId,
   setExperimentName,
 } from "@/store/actions";
+import { createExperiment } from "@/helpers/requests";
+import { useDispatch, useSelector } from "react-redux";
 
 export interface IInstructionProps {
   onBegin: () => void;
 }
 
 export default function CreateExperimentCard(props: IInstructionProps) {
+  const dispatch = useDispatch();
   const [experimentName, setExperimentName] = useState<string>("");
   const [experimentDescription, setExperimentDescription] =
     useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  function handleNext() {
+
+  async function handleNext() {
     if (experimentName === "" || experimentDescription === "") {
       setErrorMsg("Please fill out all fields");
       return;
     } else {
       setErrorMsg(null);
     }
+    const experiment_upload_result = await createExperiment(
+      experimentName,
+      experimentDescription
+    );
+    console.log("experiment_upload_result");
+    console.log(experiment_upload_result);
+    if (!experiment_upload_result || experiment_upload_result.id == null) {
+      setErrorMsg("Something went wrong. Please try again.");
+      return;
+    }
+    dispatch(setExperimentId(experiment_upload_result.id));
     // make sure we have a clean slate
     clearAllGameData();
     // set experiment name and description
