@@ -7,16 +7,16 @@ export default function Home() {
     <main className="min-h-screen">
       {/* this div content should be centered in the middle of the page vertically and horizontally */}
       {/* ensure centered */}
-      <div className="flex flex-col items-center justify-center min-h-screen max-w-5xl mx-auto">
+      <div className="flex flex-col items-center justify-center min-h-screen max-w-5xl mx-auto lg:-mt-16">
         <div className="flex flex-col items-center justify-center">
           <h1
-            className={`text-4xl font-bold text-left text-green-500 ${Game_Font.className}`}
+            className={`text-4xl font-bold text-left text-green-500 text-center ${Game_Font.className}`}
           >
-            RL Arcade
+            Preference Arcade
           </h1>
           <p className="text-2xl text-center text-yellow-500">
-            Incoporate human preferences into RL agents while playing online
-            games.
+            Incoporate human preferences into autonomous agents while playing
+            online games.
           </p>
           <div className="flex flex-col items-center justify-center">
             <Link href="experiments/new">
