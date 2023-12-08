@@ -25,6 +25,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# set default parser class for rest framework to json
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ]
+}
+
 
 # Application definition
 

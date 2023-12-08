@@ -8,6 +8,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
 from datetime import datetime
 from datetime import timezone
 
@@ -15,6 +16,7 @@ from datetime import timezone
 
 
 class Experiment_View(viewsets.ModelViewSet):
+    parser_classes = [JSONParser]
     serializer_class = Experiment_Serializer
     queryset = Experiment.objects.all()
 
