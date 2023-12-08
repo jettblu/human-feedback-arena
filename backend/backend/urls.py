@@ -27,6 +27,10 @@ router.register(r'experiments', views.Experiment_View, 'experiment')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/experiment/<str:experiment_id>/',
+         views.GetExperimentById.as_view()),
+    path('api/experiment/<str:experiment_id>/uploadTrainingData/',
+         views.UploadTrainingData.as_view()),
     # path('api/experimentSummary/<str:experiment_name>/',
     #      views.GetExperimentSummary.as_view()),
 ]
