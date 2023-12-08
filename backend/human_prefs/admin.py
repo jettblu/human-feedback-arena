@@ -1,12 +1,13 @@
 from django.contrib import admin
-from .models import Comparison
+from .models import Experiment
 
-
-class ComparisonAdmin(admin.ModelAdmin):
-    list_display = ('created_at', 'updated_at', 'media_url_1',
-                    'media_url_2', 'shown_to_tasker_at', 'responded_at', 'response_kind', 'response', 'experiment_name', 'priority', 'note')
 
 # Register your models here.
 
 
-admin.site.register(Comparison, ComparisonAdmin)
+class ExperimentAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'updated_at', 'name',
+                    'description', 'agent_rl_playing_url', 'agent_immitation_playing_url', 'training_data_url', 'training_statistics_graph_url', 'rl_human_fusion_score', 'immitation_score', 'is_training_data_uploaded', 'is_done_training')
+
+
+admin.site.register(Experiment, ExperimentAdmin)

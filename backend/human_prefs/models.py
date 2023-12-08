@@ -1,62 +1,37 @@
+import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-RESPONSE_KIND_TO_RESPONSES_OPTIONS = {
-    'left_or_right': ['left', 'right', 'tie', 'abstain']}
 
-
-def validate_inclusion_of_response_kind(value):
-    kinds = RESPONSE_KIND_TO_RESPONSES_OPTIONS.keys()
-    if value not in kinds:
-        raise ValidationError(_('%(value)s is not included in %(kinds)s'), params={
-                              'value': value, 'kinds': kinds}, )
-
-
-# 'num_responses', 'started_at', 'pretty_time_elapsed'
-# class ExperimentResource(models.Model):
-#     name = models.TextField("name of the experiment", default="")
-#     num_responses = models.FloatField("number of comparisons completed")
-#     started_at = models.Text
-class Comparison(models.Model):
+class Experiment(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
     created_at = models.DateTimeField(
         'date created', auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    name = models.TextField('name of the experiment', db_index=True)
+    description = models.TextField(
+        'description of the experiment', db_index=True)
+    agent_rl_playing_url = models.TextField(
+        'url of the rl agent in action after fine tuning', db_index=True, blank=True, null=True)
+    agent_immitation_playing_url = models.TextField(
+        'url of the agent in action after immitation', db_index=True, blank=True, null=True)
+    training_data_url = models.TextField(
+        'url of the training data', db_index=True, blank=True, null=True)
+    training_statistics_graph_url = models.TextField(
+        'url of the training statistics graph which depeicts the avg score per round', db_index=True, blank=True, null=True)
+    rl_human_fusion_score = models.FloatField(
+        'rl score after averaging over ten games', db_index=True, blank=True, null=True)
 
-    media_url_1 = models.TextField('media url #1', db_index=True)
-    media_url_2 = models.TextField('media url #2', db_index=True)
+    immitation_score = models.FloatField(
+        'immitation score after averaging over ten games', db_index=True, blank=True, null=True)
+    is_training_data_uploaded = models.BooleanField(
+        'is training data uploaded', default=False)
+    is_done_training = models.BooleanField(
+        'is done training', default=False)
 
-    shown_to_tasker_at = models.DateTimeField(
-        'time shown to tasker', db_index=True, blank=True, null=True)
-    responded_at = models.DateTimeField(
-        'time response received', db_index=True, blank=True, null=True)
-    response_kind = models.TextField('kind of response from the tasker. may be left, right, tie, or abstain', db_index=True,
-                                     validators=[validate_inclusion_of_response_kind])
-    response = models.TextField(
-        'the response from the tasker', db_index=True, blank=True, null=True)
-    experiment_name = models.TextField('name of experiment')
-
-    priority = models.FloatField(
-        'site will display higher priority items first', db_index=True)
-    note = models.TextField(
-        'note to be displayed along with the query', default="", blank=True)
-
-    # Validation
-    def full_clean(self, exclude=None, validate_unique=True):
-        super(Comparison, self).full_clean(
-            exclude=exclude, validate_unique=validate_unique)
-        self.validate_inclusion_of_response()
-
-    @property
-    def response_options(self):
-        try:
-            return RESPONSE_KIND_TO_RESPONSES_OPTIONS[self.response_kind]
-        except KeyError:
-            raise KeyError("{} is not a valid response_kind. Valid response_kinds are {}".format(self.response_kind,
-                                                                                                 RESPONSE_KIND_TO_RESPONSES_OPTIONS.keys()))
-
-    def validate_inclusion_of_response(self):
-        # This can't be a normal validator because it depends on a value
-        if self.response is not None and self.response not in self.response_options:
-            raise ValidationError(_('%(value)s is not included in %(options)s'),
-                                  params={'value': self.response, 'options': self.response_options}, )
+    def __str__(self):
+        return self.name

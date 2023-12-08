@@ -21,12 +21,12 @@ from human_prefs import views
 
 
 router = routers.DefaultRouter()
-router.register(r'comparisons', views.Comparison_View, 'comparison')
+router.register(r'experiments', views.Experiment_View, 'experiment')
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('api/experimentSummary/<str:experiment_name>/',
-         views.GetExperimentSummary.as_view()),
+    # path('api/experimentSummary/<str:experiment_name>/',
+    #      views.GetExperimentSummary.as_view()),
 ]
