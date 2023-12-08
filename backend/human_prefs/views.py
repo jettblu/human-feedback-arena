@@ -1,23 +1,9 @@
-from collections import namedtuple
-from datetime import timedelta, datetime
-
-from django import template
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from django.shortcuts import render
-from django.utils import timezone
-
-
-from django.http import HttpResponse
-from .serializers import Experiment_Serializer
-from rest_framework.renderers import JSONRenderer
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from .models import Experiment
+from .serializers import Experiment_Serializer
+from rest_framework import viewsets
 
-
-register = template.Library()
+# Create your views here.
 
 
 class Experiment_View(viewsets.ModelViewSet):

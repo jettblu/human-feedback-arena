@@ -9,7 +9,7 @@ pip install -r requirements.txt
 Make migrations with the following command.
 
 ```bash
-python manage.py makemigrations human_prefs
+python manage.py makemigrations
 ```
 
 Apply migrations with the following command.
