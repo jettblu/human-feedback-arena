@@ -12,6 +12,7 @@ import {
   RIGHT,
   SET_DIS_DIRECTION,
   SET_EXPERIMENT_DESCRIPTION,
+  SET_EXPERIMENT_ID,
   SET_EXPERIMENT_NAME,
   SET_FOOD,
   SET_LAST_ACTION,
@@ -31,6 +32,7 @@ export interface IGlobalState {
   personalBest: number;
   observations: Observation[];
   experimentName: string;
+  experimentId: string | null;
   experimentDescription: string;
   obersvationsRequired: number;
   totalObservations: number;
@@ -58,6 +60,7 @@ const globalState: IGlobalState = {
   personalBest: 0,
   experimentName: "",
   experimentDescription: "",
+  experimentId: null,
   observations: [],
   obersvationsRequired: DESIRED_NUMBER_OF_OBSERVATIONS,
   totalObservations: 0,
@@ -98,6 +101,8 @@ const gameReducer = (state = globalState, action: any) => {
     case SET_EXPERIMENT_DESCRIPTION:
       return { ...state, experimentDescription: action.payload };
 
+    case SET_EXPERIMENT_ID:
+      return { ...state, experimentId: action.payload };
     case RESET:
       return {
         ...state,
@@ -167,7 +172,7 @@ const gameReducer = (state = globalState, action: any) => {
       if (action.payload.action === "right") {
         return {
           ...state,
-          obersvations: [...state.observations, action.payload],
+          observations: [...state.observations, action.payload],
           totalObservations: state.totalObservations + 1,
           rightObservationCount: state.rightObservationCount + 1,
         };
@@ -175,7 +180,7 @@ const gameReducer = (state = globalState, action: any) => {
       if (action.payload.action === "left") {
         return {
           ...state,
-          obersvations: [...state.observations, action.payload],
+          observations: [...state.observations, action.payload],
           totalObservations: state.totalObservations + 1,
           leftObservationCount: state.leftObservationCount + 1,
         };
@@ -183,7 +188,7 @@ const gameReducer = (state = globalState, action: any) => {
       if (action.payload.action === "straight") {
         return {
           ...state,
-          obersvations: [...state.observations, action.payload],
+          observations: [...state.observations, action.payload],
           totalObservations: state.totalObservations + 1,
           straightObservationCount: state.straightObservationCount + 1,
         };

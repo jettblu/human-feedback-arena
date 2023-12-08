@@ -15,6 +15,7 @@ export const STRAIGHT = "STRAIGHT";
 
 export const SET_DIS_DIRECTION = "SET_DIS_DIRECTION";
 
+export const SET_EXPERIMENT_ID = "SET_EXPERIMENT_ID";
 export const RESET = "RESET";
 export const STOP_GAME = "STOP_GAME";
 export const INCREASE_SNAKE = "INCREASE_SNAKE";
@@ -96,4 +97,9 @@ export const setExperimentName = (name: string) => ({
 export const setExperimentDescription = (description: string) => ({
   type: SET_EXPERIMENT_DESCRIPTION,
   payload: description,
+});
+
+export const setExperimentId = (id: string) => ({
+  type: SET_EXPERIMENT_ID,
+  payload: id,
 });
