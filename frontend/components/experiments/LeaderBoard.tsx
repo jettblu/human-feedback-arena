@@ -1,10 +1,13 @@
 // this should display a list of experiments
 
 import { getAllExperiments } from "@/helpers/requests";
+import { unstable_noStore as noStore } from "next/cache";
 import { IExperiment } from "@/types";
 import Link from "next/link";
 
 export async function LeaderBoard() {
+  // make a dynamic request to get all experiments... we don't want to cache this
+  noStore();
   const experiments = await getAllExperiments();
   return (
     <div className="w-full">
