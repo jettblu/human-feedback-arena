@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Game_Font } from "./layout";
+import { LeaderBoard } from "@/components/experiments/LeaderBoard";
 
 export default function Home() {
   return (
@@ -24,12 +25,10 @@ export default function Home() {
                 Begin Training
               </p>
             </Link>
-            <Link href="experiments/archive">
-              <p className="font-semibold underline my-3 hover:text-blue-600 transition duration-100">
-                View Old Experiments
-              </p>
-            </Link>
           </div>
+        </div>
+        <div className="mx-auto max-w-5xl w-full mt-8 border border-2 px-2 py-2 border-yellow-500/80">
+          <LeaderBoard />
         </div>
       </div>
 

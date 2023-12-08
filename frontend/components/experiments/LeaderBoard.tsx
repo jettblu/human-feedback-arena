@@ -2,13 +2,14 @@
 
 import { getAllExperiments } from "@/helpers/requests";
 import { IExperiment } from "@/types";
+import Link from "next/link";
 
-export default async function Page() {
+export async function LeaderBoard() {
   const experiments = await getAllExperiments();
   return (
-    <div>
+    <div className="w-full">
       <h1 className="text-xl text-red-500">Leaderboard</h1>
-      <div className="flex flex-col space-y-4">
+      <div className="flex flex-col space-y-4 w-full">
         {experiments && experiments.length === 0 && (
           <div className="text-center text-xl text-gray-400">
             No experiments yet!
@@ -27,14 +28,22 @@ export default async function Page() {
 function ListItemExperiment(params: { experiment: IExperiment }) {
   const experiment = params.experiment;
   return (
-    <div className="bg-gray-800/20 flex flex-row py-2 px-1">
-      <div className="bg-blue h-full w-4 mr-2">
-        {experiment.rl_human_fusion_score}
+    <div className="bg-gray-800/20 flex flex-row py-2">
+      <div className="bg-blue-500 h-full px-2 mr-3 my-auto">
+        {experiment.rl_human_fusion_score
+          ? experiment.rl_human_fusion_score
+          : "?"}
       </div>
-      <h2 className="text-lg text-yellow-500">{experiment.name}</h2>
-      <div className="flex-expand">
-        <div className="absolute right-2">
-          <p className="text-xs text-gray-400">{experiment.created_at}</p>
+      <Link href={`/experiments/${experiment.id}`}>
+        <h2 className="text-lg text-gray-500 hover:cursor-pointer hover:underline my-auto">
+          {experiment.name}
+        </h2>
+      </Link>
+      <div className="flex-grow relative">
+        <div className="">
+          <p className="text-xs text-gray-400 text-right">
+            {experiment.created_at}
+          </p>
         </div>
       </div>
     </div>
