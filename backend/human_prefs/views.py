@@ -1,5 +1,7 @@
 import json
 from django.shortcuts import render
+
+from backend.snake.upload import get_file_url, uploadFile
 from .models import Experiment
 from .serializers import Experiment_Serializer
 from rest_framework import viewsets
@@ -50,7 +52,14 @@ class UploadTrainingData(APIView):
         exp = Experiment.objects.get(id=experiment_id)
         training_data = request.data['training_data']
         # save training data to file system as json
-        save_object_to_file_system(training_data, 'training_data.json')
+        training_data_filename = 'training_data'+str(experiment_id)+'.json'
+        save_object_to_file_system(training_data, training_data_filename)
+        # upload to remote storage
+        uploadFile(training_data_filename)
+        # get url of uploaded file
+        training_data_url = get_file_url(training_data_filename)
+        # save url to db
+        exp.training_data_url = training_data_url
         exp.is_training_data_uploaded = True
         exp.save()
         # get time elapsed between created at and now
