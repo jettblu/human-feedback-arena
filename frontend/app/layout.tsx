@@ -8,13 +8,13 @@ export const metadata: Metadata = {
     "Incorporate human preferences into autonomous agents with online game play.",
   icons: ["/favicon.png"],
 };
+const Game_Font = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const Game_Font = Press_Start_2P({ weight: "400", subsets: ["latin"] });
   return (
     <html lang="en">
       <body className={Game_Font.className}>{children}</body>
