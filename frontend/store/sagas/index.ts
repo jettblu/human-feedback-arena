@@ -126,7 +126,7 @@ export function* moveSaga(params: {
 
     yield put(setLastAction(action));
     // console.log("action", action);
-    yield delay(10000000);
+    yield delay(100);
   }
 }
 
