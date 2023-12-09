@@ -20,7 +20,6 @@ import {
   RIGHT,
   setDisDirection,
   setLastAction,
-  setObservation,
   STOP_GAME,
   UP,
 } from "../actions";
