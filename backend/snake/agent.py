@@ -25,6 +25,7 @@ class Agent:
 
     def get_state(self, game):
         head = game.snake[0]
+        food = game.food
         point_l = Point(head.x - 20, head.y)
         point_r = Point(head.x + 20, head.y)
         point_u = Point(head.x, head.y - 20)
@@ -64,7 +65,12 @@ class Agent:
             game.food.x < game.head.x,  # food left
             game.food.x > game.head.x,  # food right
             game.food.y < game.head.y,  # food up
-            game.food.y > game.head.y  # food down
+            game.food.y > game.head.y,  # food down
+            # get normalized angle between head and food with formula: atan2(y2 - y1, x2 - x1)/2pi
+            np.arctan2(food.y - head.y, food.x - head.x) / (2 * np.pi),
+            # get normalized dstance between head and food using formula: sqrt((x2 - x1)^2 + (y2 - y1)^2)/width
+            np.sqrt((food.x - head.x)**2 + (food.y - head.y)**2) / \
+            np.sqrt(game.w**2 + game.h**2)
         ]
 
         return np.array(state, dtype=int)

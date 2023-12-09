@@ -1,7 +1,7 @@
 import json
 from django.shortcuts import render
 
-from backend.snake.upload import get_file_url, uploadFile
+from snake.upload import uploadFile, get_file_url
 from .models import Experiment
 from .serializers import Experiment_Serializer
 from rest_framework import viewsets
@@ -52,7 +52,7 @@ class UploadTrainingData(APIView):
         exp = Experiment.objects.get(id=experiment_id)
         training_data = request.data['training_data']
         # save training data to file system as json
-        training_data_filename = 'training_data'+str(experiment_id)+'.json'
+        training_data_filename = 'training_data_'+str(experiment_id)+'.json'
         save_object_to_file_system(training_data, training_data_filename)
         # upload to remote storage
         uploadFile(training_data_filename)
