@@ -67,7 +67,7 @@ const globalState: IGlobalState = {
   rightObservationCount: 0,
   leftObservationCount: 0,
   straightObservationCount: 0,
-  food: generateRandomPosition(1000, 600),
+  food: generateRandomPosition(1000 - 40, 600 - 40),
   lastReward: 0,
 };
 const gameReducer = (state = globalState, action: any) => {
