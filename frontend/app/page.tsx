@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Game_Font } from "./layout";
 import { LeaderBoard } from "@/components/experiments/LeaderBoard";
 import VideoPlayer from "@/components/film/VideoPlayer";
 
@@ -8,10 +7,10 @@ export default function Home() {
     <main className="min-h-screen">
       {/* this div content should be centered in the middle of the page vertically and horizontally */}
       {/* ensure centered */}
-      <div className="flex flex-col items-center justify-center min-h-screen max-w-5xl mx-auto lg:-mt-16">
+      <div className="flex flex-col min-h-screen max-w-5xl mx-auto mt-[20vh]">
         <div className="flex flex-col items-center justify-center">
           <h1
-            className={`text-4xl font-bold text-left text-green-500 text-center ${Game_Font.className}`}
+            className={`text-4xl font-bold text-left text-green-500 text-center`}
           >
             Preference Arcade
           </h1>
@@ -34,8 +33,8 @@ export default function Home() {
         {/* <VideoPlayer
           videoSrc="https://storage.googleapis.com/snake-ai/rl_video_163.mp4"
           isPlaying={true}
-        />
-        <div className="mx-auto max-w-5xl w-full mt-8 border border-2 px-2 py-2 border-yellow-500/80">
+        /> */}
+        {/* <div className="mx-auto max-w-5xl w-full mt-8 border border-2 px-2 py-2 border-yellow-500/80">
           <LeaderBoard />
         </div> */}
       </div>
