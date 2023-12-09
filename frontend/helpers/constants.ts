@@ -3,4 +3,4 @@ export const DESIRED_ACTION_RATIO = 0.33;
 
 export const BOARD_WIDTH = 500;
 export const BOARD_HEIGHT = 600;
-export const DESIRED_NUMBER_OF_OBSERVATIONS = 1000;
+export const DESIRED_NUMBER_OF_OBSERVATIONS = 5000;

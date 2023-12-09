@@ -61,6 +61,148 @@ export interface IParamsGetObservation extends IParamsGetObservationSnake {
   reward: number;
 }
 
+interface IParamsGetObservationInMiddleware {
+  snake: ISnakeCoord[];
+  newDirection: Direction;
+  disallowedDirection: Direction;
+  updateCoords: number[];
+  food: ISnakeCoord;
+  width: number;
+  height: number;
+}
+
+export function getObservationInMiddleware(
+  params: IParamsGetObservationInMiddleware
+): Observation | null {
+  let { snake, newDirection, disallowedDirection, food, width, height } =
+    params;
+  newDirection = newDirection.toLowerCase() as Direction;
+  let action: Action = "none";
+  switch (newDirection) {
+    case "up":
+      if (disallowedDirection === "right") {
+        action = "left";
+      }
+      if (disallowedDirection === "left") {
+        action = "right";
+      }
+      if (disallowedDirection === "down") {
+        action = "straight";
+      }
+      break;
+    case "down":
+      if (disallowedDirection === "right") {
+        action = "right";
+      }
+      if (disallowedDirection === "left") {
+        action = "left";
+      }
+      if (disallowedDirection === "up") {
+        action = "straight";
+      }
+      break;
+    case "left":
+      if (disallowedDirection === "up") {
+        action = "left";
+      }
+      if (disallowedDirection === "down") {
+        action = "right";
+      }
+      if (disallowedDirection === "right") {
+        action = "straight";
+      }
+      break;
+    case "right":
+      if (disallowedDirection === "up") {
+        action = "right";
+      }
+      if (disallowedDirection === "down") {
+        action = "left";
+      }
+      if (disallowedDirection === "left") {
+        action = "straight";
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  const snakeObs = getObservationForSnake({
+    snake,
+    direction: newDirection,
+    lastAction: action,
+    food,
+    width,
+    height,
+  });
+
+  if (snakeObs == null) {
+    return null;
+  }
+
+  const newSnake = [...snake];
+
+  // add update to snake head
+  const snakeHead = newSnake[0];
+  newSnake[0] = {
+    x: snakeHead.x + params.updateCoords[0],
+    y: snakeHead.y + params.updateCoords[1],
+  };
+
+  const newSnakeObs = getObservationForSnake({
+    snake: newSnake,
+    direction: newDirection,
+    lastAction: action,
+    food,
+    width,
+    height,
+  });
+
+  if (newSnakeObs == null) {
+    return null;
+  }
+  let reward = 0;
+  // check if collided with self
+  if (hasSnakeCollided(newSnake, newSnake[0])) {
+    reward = -1;
+  }
+
+  // check if collided with wall
+  if (
+    newSnake[0].x < 0 ||
+    newSnake[0].x >= width ||
+    newSnake[0].y < 0 ||
+    newSnake[0].y >= height
+  ) {
+    reward = -1;
+  }
+
+  // check if ate food
+  if (newSnake[0].x === food.x && newSnake[0].y === food.y) {
+    reward = 1;
+  } else {
+    console.log(params.updateCoords);
+    console.log(
+      snake[0].x,
+      snake[0].y,
+      newSnake[0].x,
+      newSnake[0].y,
+      food.x,
+      food.y
+    );
+  }
+
+  const observation: Observation = {
+    state: snakeObs,
+    action,
+    reward: reward,
+    nextState: newSnakeObs,
+  };
+
+  return observation;
+}
+
 export function getObservation(
   params: IParamsGetObservation
 ): Observation | null {
@@ -104,7 +246,7 @@ export function getObservation(
 
 function getObservationForSnake(
   params: IParamsGetObservationSnake
-): boolean[] | null {
+): number[] | null {
   const { snake, direction, lastAction, food, width, height } = params;
   const snakeHead = snake[0];
   try {
@@ -136,17 +278,23 @@ function getObservationForSnake(
     (dir_r && hasSnakeCollided(snake, point_u)) ||
     (dir_l && hasSnakeCollided(snake, point_d));
   const snakeObservation = [
-    danger_straight,
-    danger_right,
-    danger_left,
-    dir_l,
-    dir_r,
-    dir_u,
-    dir_d,
-    food.x < snakeHead.x,
-    food.x > snakeHead.x,
-    food.y < snakeHead.y,
-    food.y > snakeHead.y,
+    danger_straight ? 1 : 0,
+    danger_right ? 1 : 0,
+    danger_left ? 1 : 0,
+    dir_l ? 1 : 0,
+    dir_r ? 1 : 0,
+    dir_u ? 1 : 0,
+    dir_d ? 1 : 0,
+    food.x < snakeHead.x ? 1 : 0,
+    food.x > snakeHead.x ? 1 : 0,
+    food.y < snakeHead.y ? 1 : 0,
+    food.y > snakeHead.y ? 1 : 0,
+    // get normalized angle between snake head and food
+    Math.atan2(food.y - snakeHead.y, food.x - snakeHead.x) / (2 * Math.PI),
+    // get normaliized distance between snake head and food
+    Math.sqrt(
+      Math.pow(food.y - snakeHead.y, 2) + Math.pow(food.x - snakeHead.x, 2)
+    ) / Math.sqrt(Math.pow(height, 2) + Math.pow(width, 2)),
   ];
   return snakeObservation;
 }

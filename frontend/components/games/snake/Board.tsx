@@ -12,10 +12,8 @@ import {
   MOVE_UP,
   resetGame,
   RESET_SCORE,
-  setLastAction,
   scoreUpdates,
   stopGame,
-  setLastReward,
   setFood,
 } from "@/store/actions";
 import { IGlobalState } from "@/store/reducers";
@@ -61,6 +59,7 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
 
   const moveSnake = useCallback(
     (dx = 0, dy = 0, ds: string) => {
+      console.log("MOVING!");
       if (dx > 0 && dy === 0 && ds !== "RIGHT") {
         dispatch(makeMove(dx, dy, MOVE_RIGHT));
       }
@@ -100,11 +99,6 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
       moveSnake(-20, 0, disallowedDirection);
       isValidKey = true;
     }
-    if (isValidKey) {
-      // get action
-      const action = getAction(key, disallowedDirection);
-      dispatch(setLastAction(action));
-    }
   }
 
   const handleKeyEvents = useCallback(
@@ -142,7 +136,6 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     //Generate new object
     if (isConsumed) {
       setIsConsumed(false);
-      setLastReward(0);
 
       //Increase snake size when object is consumed successfully
       dispatch(increaseSnake());
@@ -164,7 +157,6 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     //When the object is consumed
     if (snake1[0].x === food?.x && snake1[0].y === food?.y) {
       setIsConsumed(true);
-      dispatch(setLastReward(1));
     }
 
     if (
@@ -174,7 +166,6 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
       snake1[0].y <= 0 ||
       snake1[0].y >= height
     ) {
-      dispatch(setLastReward(-1));
       setGameEnded(true);
       dispatch(stopGame());
       // play game over sound

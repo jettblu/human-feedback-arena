@@ -102,30 +102,6 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
   gamePlay.loop = true;
   backgroundMusic.loop = true;
 
-  // capture reward changing observations
-  useEffect(() => {
-    if ((lastReward != 1 && lastReward != -1) || !snake || !lastSnake) {
-      return;
-    }
-
-    const dir: Direction = reverseDirection(lastAction);
-    const newObservation = getObservation({
-      food,
-      reward: lastReward,
-      snake,
-      lastSnake,
-      lastAction,
-      width: BOARD_WIDTH,
-      height: BOARD_HEIGHT,
-      direction: dir,
-    });
-    if (!newObservation) {
-      console.error("newObservation is null");
-      return;
-    }
-    dispatch(addObservation(newObservation));
-  }, [lastReward]);
-
   useEffect(() => {
     if (experimentId == null) {
       console.error("experimentId is null. unable to upload training data.");
@@ -146,56 +122,8 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
   }, [totalObservations]);
 
   useEffect(() => {
-    // every two moves, capture the observation
-    if (counter % 15 == 0 && counter != 0 && snake && lastSnake) {
-      console.log("Gathering scheduled observation");
-      const dir: Direction = reverseDirection(lastAction);
-      const newObservation = getObservation({
-        food,
-        reward: lastReward,
-        snake,
-        lastSnake,
-        lastAction: "straight",
-        width: BOARD_WIDTH,
-        height: BOARD_HEIGHT,
-        direction: dir,
-      });
-      if (!newObservation) {
-        console.error("newObservation is null");
-        return;
-      }
-      dispatch(addObservation(newObservation));
-    }
-  }, [counter]);
-
-  useEffect(() => {
     setCounter(counter + 1);
   }, [snake]);
-
-  // whenever last action changes, capture the observation
-  useEffect(() => {
-    // skip first observation
-    if (totalObservations == 0 || !snake || !lastSnake) {
-      return;
-    }
-    console.log("Gathering action observation");
-    const dir: Direction = reverseDirection(lastAction);
-    const newObservation = getObservation({
-      food,
-      reward: lastReward,
-      snake,
-      lastSnake,
-      lastAction,
-      width: BOARD_WIDTH,
-      height: BOARD_HEIGHT,
-      direction: dir,
-    });
-    if (!newObservation) {
-      console.error("newObservation is null");
-      return;
-    }
-    dispatch(addObservation(newObservation));
-  }, [lastAction]);
 
   useEffect(() => {
     console.log("totalObservations", totalObservations);

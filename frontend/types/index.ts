@@ -1,8 +1,8 @@
 export type Observation = {
-  state: boolean[];
+  state: number[];
   action: Action;
   reward: number;
-  nextState: boolean[];
+  nextState: number[];
 };
 
 export type Action = "left" | "right" | "straight" | "none";
