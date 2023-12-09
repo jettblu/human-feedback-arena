@@ -79,6 +79,8 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
   const lastAction = useSelector((state: IGlobalState) => state.lastAction);
   const lastReward = useSelector((state: IGlobalState) => state.lastReward);
   const experimentId = useSelector((state: IGlobalState) => state.experimentId);
+  const [isCollectionComplete, setIsCollectionComplete] =
+    useState<boolean>(false);
   const [counter, setCounter] = useState<number>(0);
   const dispatch = useDispatch();
   const disallowedDirection = useSelector(
@@ -117,6 +119,10 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
       height: BOARD_HEIGHT,
       direction: dir,
     });
+    if (!newObservation) {
+      console.error("newObservation is null");
+      return;
+    }
     dispatch(addObservation(newObservation));
   }, [lastReward]);
 
@@ -126,14 +132,22 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
       return;
     }
     if (totalObservations >= observationsRequired) {
-      uploadTrainingData(experimentId, observations);
-      handleGameEnd();
+      setIsCollectionComplete(true);
+      // pause a second before uploading data and ending game
+      setTimeout(async () => {
+        const upload_result = await uploadTrainingData(
+          experimentId,
+          observations
+        );
+        console.log("upload_result", upload_result);
+        handleGameEnd();
+      }, 1500);
     }
   }, [totalObservations]);
 
   useEffect(() => {
-    // every 25 moves, capture the observation
-    if (counter % 25 == 0 && counter != 0 && snake && lastSnake) {
+    // every two moves, capture the observation
+    if (counter % 15 == 0 && counter != 0 && snake && lastSnake) {
       console.log("Gathering scheduled observation");
       const dir: Direction = reverseDirection(lastAction);
       const newObservation = getObservation({
@@ -141,11 +155,15 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
         reward: lastReward,
         snake,
         lastSnake,
-        lastAction,
+        lastAction: "straight",
         width: BOARD_WIDTH,
         height: BOARD_HEIGHT,
         direction: dir,
       });
+      if (!newObservation) {
+        console.error("newObservation is null");
+        return;
+      }
       dispatch(addObservation(newObservation));
     }
   }, [counter]);
@@ -156,7 +174,6 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
 
   // whenever last action changes, capture the observation
   useEffect(() => {
-    console.log("lastAction", lastAction);
     // skip first observation
     if (totalObservations == 0 || !snake || !lastSnake) {
       return;
@@ -173,6 +190,10 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
       height: BOARD_HEIGHT,
       direction: dir,
     });
+    if (!newObservation) {
+      console.error("newObservation is null");
+      return;
+    }
     dispatch(addObservation(newObservation));
   }, [lastAction]);
 
@@ -193,7 +214,7 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
   }, [lastReward]);
 
   return (
-    <div className="">
+    <div className="relative">
       {/* link back home here */}
       <Link
         href="/"
@@ -212,6 +233,13 @@ function TrainingBoard(params: { handleGameEnd: () => void }) {
         the snake with the arrow keys. You should follow your playing style
         while eating the food and avoiding walls.
       </p>
+      {isCollectionComplete && (
+        <div className="absolute top-[40%] right-0">
+          <p className="text-lg text-right text-green-500 bg-blue-400/40 w-fit px-2 py-2">
+            Training Complete!
+          </p>
+        </div>
+      )}
       <div className="w-full px-2">
         {/* progress bar that shows how many observations we have made */}
         <div className="w-full h-8 bg-gray-300 mb-4 relative">

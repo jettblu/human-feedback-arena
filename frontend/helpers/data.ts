@@ -61,7 +61,9 @@ export interface IParamsGetObservation extends IParamsGetObservationSnake {
   reward: number;
 }
 
-export function getObservation(params: IParamsGetObservation): Observation {
+export function getObservation(
+  params: IParamsGetObservation
+): Observation | null {
   const {
     lastSnake,
     reward,
@@ -88,6 +90,9 @@ export function getObservation(params: IParamsGetObservation): Observation {
     width,
     height,
   });
+  if (lastSnakeObs == null || snakeObs == null) {
+    return null;
+  }
   const observation: Observation = {
     state: lastSnakeObs,
     action: lastAction,
@@ -97,9 +102,16 @@ export function getObservation(params: IParamsGetObservation): Observation {
   return observation;
 }
 
-function getObservationForSnake(params: IParamsGetObservationSnake) {
+function getObservationForSnake(
+  params: IParamsGetObservationSnake
+): boolean[] | null {
   const { snake, direction, lastAction, food, width, height } = params;
   const snakeHead = snake[0];
+  try {
+    let test = snakeHead.x;
+  } catch {
+    return null;
+  }
   const point_l = { x: snakeHead.x - 20, y: snakeHead.y };
   const point_r = { x: snakeHead.x + 20, y: snakeHead.y };
   const point_u = { x: snakeHead.x, y: snakeHead.y - 20 };

@@ -31,7 +31,6 @@ import {
   isLeft,
   getAction,
 } from "@/utils";
-import Instruction from "./Instructions";
 
 export interface ICanvasBoard {
   height: number;
@@ -120,7 +119,8 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
           // check if the key pressed is a valid key
           (event.key === "ArrowRight" || event.key === "d")
         )
-          moveSnake(20, 0, disallowedDirection); //Move RIGHT at start
+          console.log("here!");
+        moveSnake(20, 0, disallowedDirection); //Move RIGHT at start
       }
     },
     [disallowedDirection, moveSnake]
@@ -132,7 +132,7 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     dispatch(scoreUpdates(RESET_SCORE));
     clearBoard(context);
     drawObject(context, snake1, "#91C483");
-    let newFood = generateRandomPosition(width - 20, height - 20);
+    let newFood = generateRandomPosition(width - 40, height - 40);
     drawObject(context, [newFood], "red"); //Draws object randomly
     dispatch(setFood(newFood));
     window.addEventListener("keydown", handleKeyEvents);
@@ -185,6 +185,10 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
       }, 2000);
     } else setGameEnded(false);
   }, [context, food, snake1, height, width, dispatch, handleKeyEvents]);
+
+  useEffect(() => {
+    console.log("here!");
+  }, [snake1]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyEvents);
