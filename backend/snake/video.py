@@ -42,8 +42,6 @@ def save_animation(frames, file_name, fps=24):
     # add gif extension if not there
     if file_name[-4:] != ".gif":
         file_name += ".gif"
-    file_type = "gif"
-    size = frames[0].get_size()
     with imageio.get_writer(file_name, mode="I", fps=fps) as writer:
         for frame in frames:
             try:
@@ -55,4 +53,5 @@ def save_animation(frames, file_name, fps=24):
             # then convert the np array so it is compatible with opencv
             cv_frame = pg_to_cv2(pg_frame,)
             writer.append_data(cv_frame)
-    print(f"Video saved as {file_name}.{file_type}")
+    print(f"Animation saved as {file_name}")
+    return file_name

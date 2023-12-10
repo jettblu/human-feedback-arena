@@ -1,12 +1,13 @@
+import json
 import torch
 import random
 import numpy as np
 from collections import deque
-from game import SnakeGameAI, Direction, Point
-from model import Linear_QNet, QTrainer
-from helper import plot, save_plot
-from upload import uploadFile
-from video import save_frames
+from .models import Linear_QNet, QTrainer
+from .game import SnakeGameAI, Direction, Point
+from .helper import plot, save_plot
+from .upload import uploadFile
+from .video import save_animation, save_frames
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
@@ -20,7 +21,7 @@ class Agent:
         self.epsilon = 0  # randomness
         self.gamma = 0.9  # discount rate
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
-        self.model = Linear_QNet(11, 256, 3)
+        self.model = Linear_QNet(13, 256, 3)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game):
@@ -117,7 +118,7 @@ def train():
     record = 0
     agent = Agent()
     game = SnakeGameAI()
-    num_iterations = 500
+    num_iterations = 110
     i = 0
     while i < num_iterations:
 
@@ -155,11 +156,11 @@ def train():
             plot(plot_scores, plot_mean_scores)
     # save figure
     random_number = random.randint(0, 10000)
-    save_plot(plot_scores, plot_mean_scores, f'rl_plot_{random_number}.png')
+    save_plot(plot_scores, plot_mean_scores, f"pure_rl_" +
+              str(num_iterations)+"_iterations.png")
     # save model to file named pure_rl
-    agent.model.save("pure_rl")
-    # save model to file
-    agent.model.save()
+    agent.model.save("pure_rl_"+str(num_iterations)+"_iterations.pth")
+    print(agent.n_games)
     # record video of game
     game.reset()
     frame_list = []
@@ -176,11 +177,11 @@ def train():
         if done:
             print("Recording video")
             # convert list of frames to video
-            video_name = f"rl_video_{random_number}.mp4"
-            save_frames(frame_list, 10, "mp4", video_name)
+            video_name = f"backend/rl_animation_{random_number}.gif"
+            save_animation(frame_list, video_name)
             break
     uploadFile(video_name)
 
 
-if __name__ == '__main__':
-    train()
+# if __name__ == '__main__':
+#     train()
