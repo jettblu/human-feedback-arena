@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { LeaderBoard } from "@/components/experiments/LeaderBoard";
-import VideoPlayer from "@/components/film/VideoPlayer";
 
 export default function Home() {
   return (
@@ -22,6 +20,12 @@ export default function Home() {
           <div className="text-center text-xl text-gray-400">
             Coming soon (as in a few hours)! 🐍
           </div>
+          <Link
+            href="/experiments/pure-rl-agent"
+            className="hover:cursor-pointer underline text-blue-500"
+          >
+            View Pure RL Agent
+          </Link>
           {/* <div className="flex flex-col items-center justify-center">
             <Link href="experiments/new">
               <p className="font-semibold underline my-3 hover:text-blue-600 transition duration-100">
