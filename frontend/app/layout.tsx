@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={Game_Font.className}>{children}</body>
+      <body className={`px-2 ${Game_Font.className} mb-20`}>{children}</body>
     </html>
   );
 }
