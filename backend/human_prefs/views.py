@@ -1,5 +1,6 @@
 import json
 from django.shortcuts import render
+from .tasks import run_entire_training_process
 
 from snake.upload import uploadFile, get_file_url
 from .models import Experiment
@@ -41,7 +42,13 @@ class GetExperimentById(APIView):
         now = datetime.now(timezone.utc)
         created_at = _pretty_time_elapsed(exp.created_at, now)
         updated_at = _pretty_time_elapsed(exp.updated_at, now)
-        return Response({'name': exp.name, 'description': exp.description, "created_at": created_at, "updated_at": updated_at, 'agent_rl_playing_url': exp.agent_rl_playing_url, 'agent_immitation_playing_url': exp.agent_immitation_playing_url, 'training_data_url': exp.training_data_url, 'training_statistics_graph_url': exp.training_statistics_graph_url, 'rl_human_fusion_score': exp.rl_human_fusion_score, 'immitation_score': exp.immitation_score, 'is_training_data_uploaded': exp.is_training_data_uploaded, 'is_done_training': exp.is_done_training})
+        training_data_uploaded_at = _pretty_time_elapsed(
+            exp.training_data_uploaded_at, now)
+        exp_to_return = exp
+        exp_to_return.created_at = created_at
+        exp_to_return.updated_at = updated_at
+        exp_to_return.training_data_uploaded_at = training_data_uploaded_at
+        return Response(exp_to_return)
 
 
 # this class will receive training data as part of post request body
@@ -61,12 +68,20 @@ class UploadTrainingData(APIView):
         # save url to db
         exp.training_data_url = training_data_url
         exp.is_training_data_uploaded = True
+        training_data_uploaded_at = _pretty_time_elapsed(
+            exp.training_data_uploaded_at, now)
+        exp.training_data_uploaded_at = training_data_uploaded_at
         exp.save()
         # get time elapsed between created at and now
         now = datetime.now(timezone.utc)
         created_at = _pretty_time_elapsed(exp.created_at, now)
         updated_at = _pretty_time_elapsed(exp.updated_at, now)
-        return Response({'name': exp.name, 'description': exp.description, "created_at": created_at, "updated_at": updated_at, 'agent_rl_playing_url': exp.agent_rl_playing_url, 'agent_immitation_playing_url': exp.agent_immitation_playing_url, 'training_data_url': exp.training_data_url, 'training_statistics_graph_url': exp.training_statistics_graph_url, 'rl_human_fusion_score': exp.rl_human_fusion_score, 'immitation_score': exp.immitation_score, 'is_training_data_uploaded': exp.is_training_data_uploaded, 'is_done_training': exp.is_done_training})
+
+        # now we want to run the entire training process
+        task_id = run_entire_training_process.delay(
+            training_data, experiment_id)
+
+        return Response({'name': exp.name, 'description': exp.description, "created_at": created_at, "updated_at": updated_at, "training_data_url": training_data_url, "training_data_uploaded_at": training_data_uploaded_at})
 
 
 def save_object_to_file_system(obj, file_name):

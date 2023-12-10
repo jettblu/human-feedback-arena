@@ -5,8 +5,8 @@ from .models import Experiment
 
 
 class ExperimentAdmin(admin.ModelAdmin):
-    list_display = ('created_at', 'updated_at', 'name', 'id',
-                    'description', 'agent_rl_playing_url', 'agent_immitation_playing_url', 'training_data_url', 'training_statistics_graph_url', 'rl_human_fusion_score', 'immitation_score', 'is_training_data_uploaded', 'is_done_training')
+    # display all fields in admin
+    list_display = [field.name for field in Experiment._meta.get_fields()]
 
 
 admin.site.register(Experiment, ExperimentAdmin)
