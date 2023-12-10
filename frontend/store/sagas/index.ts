@@ -23,10 +23,10 @@ import {
   STOP_GAME,
   UP,
 } from "../actions";
-import { getAction } from "@/utils";
 import { IGlobalState } from "@/store/reducers";
 import { Action, Direction, Observation } from "@/types";
-import { getObservation, getObservationInMiddleware } from "@/helpers/data";
+import { getObservationInMiddleware } from "@/helpers/data";
+import { MAX_OBSERVATION_COUNT_DIFFERENCE } from "@/helpers/constants";
 
 export function* moveSaga(params: {
   type: string;
@@ -43,6 +43,15 @@ export function* moveSaga(params: {
       (state: IGlobalState) => state.disallowedDirection
     );
     let snake: any = yield select((state: IGlobalState) => state.snake);
+    let num_straight: any = yield select(
+      (state: IGlobalState) => state.straightObservationCount
+    );
+    let num_left: any = yield select(
+      (state: IGlobalState) => state.leftObservationCount
+    );
+    let num_right: any = yield select(
+      (state: IGlobalState) => state.rightObservationCount
+    );
     if (disallowedDirection) {
       disallowedDirection = disallowedDirection.toLowerCase();
     }
@@ -117,7 +126,21 @@ export function* moveSaga(params: {
         width: 1000,
         height: 600,
       });
-      if (observation) {
+      const right_diff = num_straight - num_right;
+      const left_diff = num_straight - num_left;
+      const right_imbalance = right_diff > MAX_OBSERVATION_COUNT_DIFFERENCE;
+      const left_imbalance = left_diff > MAX_OBSERVATION_COUNT_DIFFERENCE;
+
+      // make sure we keep the number of observations balanced
+      if (
+        !observation ||
+        (observation.action === "straight" &&
+          observation.reward === 0 &&
+          (right_imbalance || left_imbalance))
+      ) {
+        console.log("skipping observation");
+        // pass for now
+      } else {
         yield put(addObservation(observation));
       }
     } catch (e) {
@@ -126,7 +149,7 @@ export function* moveSaga(params: {
 
     yield put(setLastAction(action));
     // console.log("action", action);
-    yield delay(100);
+    yield delay(120);
   }
 }
 
