@@ -48,38 +48,53 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
   const dispatch = useDispatch();
   const snake1 = useSelector((state: IGlobalState) => state.snake);
   const food = useSelector((state: IGlobalState) => state.food);
+  const observationCount = useSelector(
+    (state: IGlobalState) => state.totalObservations
+  );
   const disallowedDirection = useSelector(
     (state: IGlobalState) => state.disallowedDirection
   );
 
   const [gameEnded, setGameEnded] = useState<boolean>(false);
   const [isConsumed, setIsConsumed] = useState<boolean>(false);
+  const [lastObservationCount, setLastObservationCount] = useState<number>(-1);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
 
   const moveSnake = useCallback(
     (dx = 0, dy = 0, ds: string) => {
       console.log("MOVING!");
+      if (observationCount == lastObservationCount) {
+        console.log("DOUBLE MOVE PREVENTED");
+        return;
+      }
       if (dx > 0 && dy === 0 && ds !== "RIGHT") {
         dispatch(makeMove(dx, dy, MOVE_RIGHT));
+        setLastObservationCount(observationCount);
       }
 
       if (dx < 0 && dy === 0 && ds !== "LEFT") {
         dispatch(makeMove(dx, dy, MOVE_LEFT));
+        setLastObservationCount(observationCount);
       }
 
       if (dx === 0 && dy < 0 && ds !== "UP") {
         dispatch(makeMove(dx, dy, MOVE_UP));
+        setLastObservationCount(observationCount);
       }
 
       if (dx === 0 && dy > 0 && ds !== "DOWN") {
         dispatch(makeMove(dx, dy, MOVE_DOWN));
+        setLastObservationCount(observationCount);
       }
     },
     [dispatch]
   );
 
   function handleMovement(event: KeyboardEvent) {
+    if (event.repeat) {
+      return;
+    }
     const key = event.key;
     let isValidKey = false;
     if (isUp(key)) {
@@ -99,6 +114,7 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
       moveSnake(-20, 0, disallowedDirection);
       isValidKey = true;
     }
+    event.stopPropagation();
   }
 
   const handleKeyEvents = useCallback(
@@ -113,8 +129,7 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
           // check if the key pressed is a valid key
           (event.key === "ArrowRight" || event.key === "d")
         )
-          console.log("here!");
-        moveSnake(20, 0, disallowedDirection); //Move RIGHT at start
+          moveSnake(20, 0, disallowedDirection); //Move RIGHT at start
       }
     },
     [disallowedDirection, moveSnake]
@@ -178,12 +193,8 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
   }, [context, food, snake1, height, width, dispatch, handleKeyEvents]);
 
   useEffect(() => {
-    console.log("here!");
-  }, [snake1]);
-
-  useEffect(() => {
+    window.removeEventListener("keydown", handleKeyEvents);
     window.addEventListener("keydown", handleKeyEvents);
-
     return () => {
       window.removeEventListener("keydown", handleKeyEvents);
     };
