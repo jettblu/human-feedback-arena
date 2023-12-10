@@ -6,10 +6,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch
 import torch.nn as nn
-from video import save_animation
+from .video import save_animation
 
-from game import SnakeGameAI
-from utils import format_data, get_state
+from .game import SnakeGameAI
+from .utils import format_data, get_state
 
 
 class DDQN(nn.Module):
@@ -89,6 +89,8 @@ class CQLAgent():
         for e in range(num_epochs):
             print("Epoch: ", e)
             random.shuffle(experiences)
+            if (len(experiences) < batch_size):
+                batch_size = len(experiences)
             for i in range(0, len(experiences), batch_size):
                 batch = experiences[i:i+batch_size]
                 self.learn(batch)
@@ -203,11 +205,14 @@ def run_cql(training_data, experiment_id, num_epochs=20):
     avg_score = sum(scores) / len(scores)
     animation_name = "temp/gameplay_cql_"+str(experiment_id)+".gif"
     save_animation(frames, animation_name)
-    return avg_score, animation_name
+    # save model
+    model_path = "temp/cql_model_"+str(experiment_id)+".pth"
+    torch.save(agent.network.state_dict(), model_path)
+    return avg_score, animation_name, model_path
 
 
-if __name__ == "__main__":
-    # load training data
-    training_data = json.load(
-        open("backend/training_data_44e0ee25-9321-4052-a529-2513a72de142.json"))
-    run_cql(training_data, "test")
+# if __name__ == "__main__":
+#     # load training data
+#     training_data = json.load(
+#         open("backend/training_data_44e0ee25-9321-4052-a529-2513a72de142.json"))
+#     run_cql(training_data, "test")

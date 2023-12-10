@@ -1,11 +1,11 @@
 
 # load model
 import json
-from agent import Agent
-from helper import save_plot, save_plot_just_scores
-from game import SnakeGameAI
-from utils import action_encoder
-from video import save_animation
+from .agent import Agent
+from .helper import save_plot, save_plot_just_scores
+from .game import SnakeGameAI
+from .utils import action_encoder
+from .video import save_animation
 
 
 model_path = "model/pure_rl_200_iterations.pth"
@@ -84,16 +84,20 @@ def run_finetuning(training_data, experiment_id, num_epochs=20):
             i += 1
 
     # save video
-    game_play_vid_path = "temp/gameplay_finetuning_"+str(experiment_id)+".mp4"
+    game_play_vid_path = "temp/gameplay_finetuning_"+str(experiment_id)+".gif"
     save_animation(frames, game_play_vid_path)
     final_avg_score = sum(scores) / len(scores)
 
-    return final_avg_score, game_play_vid_path, figure_path
+    # save model
+    model_path = "temp/finetuned_model_"+str(experiment_id)+".pth"
+    agent.model.save("model/finetuned_model.pth")
+
+    return final_avg_score, game_play_vid_path, figure_path, model_path
 
 
-if __name__ == "__main__":
-    # load training data
-    training_data = json.load(
-        open("backend/training_data_ec41bcaf-9dc6-42ec-a74f-b3e86afedb13.json", "r"))
+# if __name__ == "__main__":
+#     # load training data
+#     training_data = json.load(
+#         open("backend/training_data_ec41bcaf-9dc6-42ec-a74f-b3e86afedb13.json", "r"))
 
-    run_finetuning(training_data, "test", num_epochs=20)
+#     run_finetuning(training_data, "test", num_epochs=20)

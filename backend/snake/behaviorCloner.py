@@ -5,11 +5,13 @@ import random
 import numpy as np
 import torch.nn as nn
 import torch
-from video import save_animation
-from helper import save_plot_just_scores
-from game import Direction, Point, SnakeGameAI
 
-from utils import action_encoder
+from .video import save_animation
+
+from .helper import save_plot_just_scores
+from .game import Direction, Point, SnakeGameAI
+
+from .utils import action_encoder
 
 
 class Policy_Model(nn.Module):
@@ -55,8 +57,8 @@ class Policy_Model(nn.Module):
         self.optimizer.step()
         return loss.item()
 
-    def save(self):
-        torch.save(self.state_dict(), 'backend/policy_model.pth')
+    def save(self, file_path='model.pth'):
+        torch.save(self.state_dict(), file_path)
 
     def get_state(self, game):
         head = game.snake[0]
@@ -141,6 +143,8 @@ def run_behavior_cloning(data_source, experiment_id):
         epoch_loss = []
         # scramble training data
         random.shuffle(training_data)
+        if (len(training_data < Batch_Size)):
+            Batch_Size = len(training_data)
         for i in range(len(training_data) // Batch_Size):
             batch = training_data[i * Batch_Size: (i + 1) * Batch_Size]
             states = []
@@ -205,10 +209,14 @@ def run_behavior_cloning(data_source, experiment_id):
         str(experiment_id)+".gif"
     save_animation(frames, game_play_vid_path)
 
+    # save model
+    model_path = "temp/behavior_cloning_model_"+str(experiment_id)+".pth"
+    model.save(model_path)
+
     return avg_score, game_play_vid_path, plot_name
 
 
-if __name__ == "__main__":
-    data_source = json.load(
-        open("backend/training_data_44e0ee25-9321-4052-a529-2513a72de142.json"))
-    run_behavior_cloning(data_source, "test")
+# if __name__ == "__main__":
+#     data_source = json.load(
+#         open("backend/training_data_44e0ee25-9321-4052-a529-2513a72de142.json"))
+#     run_behavior_cloning(data_source, "test")
