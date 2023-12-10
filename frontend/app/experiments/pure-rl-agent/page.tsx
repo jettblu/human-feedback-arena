@@ -31,7 +31,7 @@ export default function Home() {
       <div className="flex flex-col space-y-1 mt-4">
         <h3 className="text-md text-yellow-500">Training Scores</h3>
         <Image
-          src="/experiments/snake/pur_rl_200_iterations.png"
+          src="/experiments/snake/pure_rl_200_iterations.png"
           width={300}
           height={300}
           alt={"Training scores for the pure autonomous agent."}

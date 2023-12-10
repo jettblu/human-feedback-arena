@@ -1,6 +1,5 @@
 import { ISnakeCoord } from "@/store/actions";
 import { Action, Direction, Observation } from "@/types";
-import { dir } from "console";
 
 // this returns an observation that will be used on the backend for training
 // observation based on the following python code:
@@ -182,15 +181,6 @@ export function getObservationInMiddleware(
   if (newSnake[0].x === food.x && newSnake[0].y === food.y) {
     reward = 1;
   } else {
-    console.log(params.updateCoords);
-    console.log(
-      snake[0].x,
-      snake[0].y,
-      newSnake[0].x,
-      newSnake[0].y,
-      food.x,
-      food.y
-    );
   }
 
   const observation: Observation = {
