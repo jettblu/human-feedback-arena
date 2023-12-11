@@ -14,20 +14,20 @@ def run_entire_training_process(training_data, experiment_id):
     experiment = Experiment.objects.get(id=experiment_id)
     bc_avg_score, bc_gameplay_filepath, bc_plot_filepath, bc_model_filepath = run_behavior_cloning(
         training_data, experiment_id)
-    cql_avg_score, cql_gameplay_path, cql_model_filepath = run_cql(
-        training_data, experiment_id)
-    finetune_avg_score, finetune_gameplay_path, finetune_plot_filepath, finetune_model_filepath = run_finetuning(
-        training_data, experiment_id)
-
-    # upload files to google bucket
     bc_gameplay_url = uploadFile(
         bc_gameplay_filepath, bucket_name=game_play_bucket_name)
     bc_plot_url = uploadFile(bc_plot_filepath, bucket_name=charts_bucket_name)
     bc_model_url = uploadFile(bc_model_filepath, bucket_name=model_bucket_name)
+    # inverse q learning
+    cql_avg_score, cql_gameplay_path, cql_model_filepath = run_cql(
+        training_data, experiment_id)
     cql_gameplay_url = uploadFile(
         cql_gameplay_path, bucket_name=game_play_bucket_name)
     cql_model_url = uploadFile(
         cql_model_filepath, bucket_name=model_bucket_name)
+    # finetuning
+    finetune_avg_score, finetune_gameplay_path, finetune_plot_filepath, finetune_model_filepath = run_finetuning(
+        training_data, experiment_id)
     finetune_gameplay_url = uploadFile(
         finetune_gameplay_path, bucket_name=game_play_bucket_name)
     finetune_plot_url = uploadFile(
