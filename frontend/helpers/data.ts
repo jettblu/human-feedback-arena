@@ -288,3 +288,22 @@ function getObservationForSnake(
   ];
   return snakeObservation;
 }
+
+export function getExpectedCollectionTimeString(
+  numObservations: number,
+  dataBalanceEnforced: boolean
+): string {
+  if (isNaN(numObservations)) {
+    return "0 minutes";
+  }
+  const numObservationsPerSecond = 200 / 60;
+  let numSeconds = numObservations / numObservationsPerSecond;
+  if (dataBalanceEnforced) {
+    numSeconds = numSeconds * 5;
+  }
+  if (numSeconds < 60) {
+    return `${Math.floor(numSeconds)} seconds`;
+  }
+  const numMinutes = Math.floor(numSeconds / 60);
+  return `${numMinutes} minutes`;
+}
