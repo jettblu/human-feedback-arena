@@ -43,6 +43,13 @@ export default function TrainingPendingView(params: {
           </span>
         </p>
       )}
+      {secondsRemaining < -60 && (
+        <p className="text-sm text-red-500 mt-6">
+          This is taking longer than expected. Server resources may have been
+          exceeded during training which would result in your models not being
+          saved. Please try again later.
+        </p>
+      )}
       {/* option to refresh the page */}
       <button
         onClick={() => {

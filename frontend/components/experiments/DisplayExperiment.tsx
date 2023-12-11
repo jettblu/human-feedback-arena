@@ -8,6 +8,7 @@ import Plot from "./Plot";
 
 export default function DisplayExperiment(params: { experiment: IExperiment }) {
   const { experiment } = params;
+  const timeString = timeStringFromSeconds(experiment.collection_time_seconds);
   return (
     <div>
       <div className="flex flex-row py-2">
@@ -29,6 +30,30 @@ export default function DisplayExperiment(params: { experiment: IExperiment }) {
           This experiment is still being trained by a human. Check back later!
         </p>
       )}
+      {experiment.is_training_data_uploaded && (
+        <div className="flex flex-col space-y-3 mt-6 mb-4">
+          <h3 className="text-md text-yellow-500">Training Stats</h3>
+          <p className="text-lg text-gray-400">
+            Observation Collection Time:{" "}
+            <span className="text-gray-100">{timeString}</span>
+          </p>
+          <p className="text-lg text-gray-400">
+            Total Observations:
+            <span className="text-gray-100">
+              {experiment.observation_count}
+            </span>
+          </p>
+          {experiment.training_data_url && (
+            <Link
+              href={experiment.training_data_url}
+              className="text-lg text-blue-600 hover:underline hover:text-blue-500"
+              download={experiment.name + ".json"}
+            >
+              Download Training Data
+            </Link>
+          )}
+        </div>
+      )}
       {experiment.is_done_training && <CompleteView experiment={experiment} />}
       {!experiment.is_done_training && experiment.is_training_data_uploaded && (
         <TrainingPendingView experiment={experiment} />
@@ -39,30 +64,9 @@ export default function DisplayExperiment(params: { experiment: IExperiment }) {
 
 function CompleteView(params: { experiment: IExperiment }) {
   const { experiment } = params;
-  const timeString = timeStringFromSeconds(experiment.collection_time_seconds);
+
   return (
     <div>
-      <div className="flex flex-col space-y-3 mt-6 mb-4">
-        <h3 className="text-md text-yellow-500">Training Stats</h3>
-        <p className="text-lg text-gray-400">
-          Observation Collection Time:{" "}
-          <span className="text-gray-100">{timeString}</span>
-        </p>
-        <p className="text-lg text-gray-400">
-          Total Observations:
-          <span className="text-gray-100">{experiment.observation_count}</span>
-        </p>
-        {experiment.training_data_url && (
-          <Link
-            href={experiment.training_data_url}
-            className="text-lg text-blue-600 hover:underline hover:text-blue-500"
-            download={experiment.name + ".json"}
-          >
-            Download Training Data
-          </Link>
-        )}
-      </div>
-
       <div className="flex flex-col space-y-3 my-4">
         <h3 className="text-md text-yellow-500">
           Finetuned Reinforcement Agent
