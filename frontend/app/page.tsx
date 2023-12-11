@@ -38,7 +38,7 @@ export default function Home() {
               </p>
             </Link>
 
-            <Link href="experimentts/pure-rl-agent">
+            <Link href="experiments/pure-rl-agent">
               <p className="font-semibold underline my-3 hover:text-blue-600 transition duration-100">
                 View RL Agent
               </p>
