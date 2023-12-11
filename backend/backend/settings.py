@@ -14,7 +14,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
-SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,7 +79,8 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
-    'http://localhost:3001'
+    'http://localhost:3001',
+    "https://preferencearcade.com",
 ]
 
 
@@ -88,9 +88,21 @@ CORS_ORIGIN_WHITELIST = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default':
+    {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+
+    'remote':
+    {
+        # will use postgres
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('MYAPP_DB_NAME'),
+        'USER': os.getenv('MYAPP_DB_USER'),
+        'PASSWORD': os.getenv('MYAPP_DB_PASSWORD'),
+        'HOST': os.getenv('MYAPP_DB_HOST'),
+        'PORT': os.getenv('MYAPP_DB_PORT'),
     }
 }
 
@@ -135,3 +147,36 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+
+if os.getenv('IS_PRODUCTION'):
+    DEBUG = False
+
+    # App Engine's security features ensure that it is safe to
+    # have ALLOWED_HOSTS = ['*'] when the app is deployed.
+    ALLOWED_HOSTS = ['*']
+
+    DATABASES = {
+        'default':
+            {
+                # will use postgres
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.getenv('MYAPP_DB_NAME'),
+                'USER': os.getenv('MYAPP_DB_USER'),
+                'PASSWORD': os.getenv('MYAPP_DB_PASSWORD'),
+                'HOST': os.getenv('MYAPP_DB_HOST'),
+                'PORT': os.getenv('MYAPP_DB_PORT'),
+            }
+    }
+
+SECRET_KEY = str(os.getenv('SECRET_KEY'))
+
+# Where static files are served from by the dev server.
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# URL prefix used for static files, both in development and production.
+# STATIC_URL = '/static/'
+
+# STATICFILES_DIRS = (('', os.path.join(BASE_DIR, 'assets')),)
