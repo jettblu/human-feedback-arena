@@ -1,0 +1,7 @@
+# some stuff we don't want to upload to google app deployment
+
+.gcloudignore
+.git
+.gitignore
+.virtualenv
+.vscode

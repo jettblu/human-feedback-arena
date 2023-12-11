@@ -5,3 +5,6 @@ staticfiles
 db.sqlite3
 MUJOCO_LOG.TXT
 serviceAccountCredentialsForRLHF.json
+training data dev/
+# thsi file is needed for production... see README.md
+private_gae_env.yaml
