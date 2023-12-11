@@ -8,10 +8,19 @@ import Link from "next/link";
 export async function LeaderBoard() {
   // make a dynamic request to get all experiments... we don't want to cache this
   noStore();
-  const experiments = await getAllExperiments();
+  let experiments = await getAllExperiments();
+  if (experiments) {
+    experiments.sort((a, b) => {
+      return b.rl_human_fusion_score - a.rl_human_fusion_score;
+    });
+    // filter out experiments that are not complete
+    experiments = experiments.filter((experiment) => {
+      return experiment.is_done_training;
+    });
+  }
   return (
     <div className="w-full">
-      <h1 className="text-xl text-red-500">Leaderboard</h1>
+      <h1 className="text-xl text-red-500">Experiment Leaderboard</h1>
       <div className="flex flex-col space-y-4 w-full">
         {experiments && experiments.length === 0 && (
           <div className="text-center text-xl text-gray-400">
