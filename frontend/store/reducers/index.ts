@@ -18,6 +18,7 @@ import {
   SET_LAST_ACTION,
   SET_LAST_REWARD,
   SET_OBSERVATION_REQUIREMENT,
+  SET_DATABALANCE_ENFORCED,
   UP,
 } from "../actions";
 import { generateRandomPosition } from "@/utils";
@@ -41,6 +42,7 @@ export interface IGlobalState {
   rightObservationCount: number;
   leftObservationCount: number;
   straightObservationCount: number;
+  enforce_data_balance: boolean;
 }
 
 const firstSnakeBit = { x: 580, y: 300 };
@@ -69,6 +71,7 @@ const globalState: IGlobalState = {
   straightObservationCount: 0,
   food: generateRandomPosition(1000 - 40, 600 - 40),
   lastReward: 0,
+  enforce_data_balance: true,
 };
 const gameReducer = (state = globalState, action: any) => {
   switch (action.type) {
@@ -167,6 +170,11 @@ const gameReducer = (state = globalState, action: any) => {
       return {
         ...state,
         score: state.score + 1,
+      };
+    case SET_DATABALANCE_ENFORCED:
+      return {
+        ...state,
+        enforce_data_balance: action.payload,
       };
     case ADD_OBSERVATION:
       if (action.payload.action === "right") {

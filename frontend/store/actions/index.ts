@@ -29,6 +29,7 @@ export const SET_FOOD = "SET_FOOD";
 export const SET_LAST_REWARD = "SET_LAST_REWARD";
 export const SET_EXPERIMENT_NAME = "SET_EXPERIMENT_NAME";
 export const SET_EXPERIMENT_DESCRIPTION = "SET_EXPERIMENT_DESCRIPTION";
+export const SET_DATABALANCE_ENFORCED = "SET_DATABALANCE_ENFORCED";
 export interface ISnakeCoord {
   x: number;
   y: number;
@@ -102,4 +103,9 @@ export const setExperimentDescription = (description: string) => ({
 export const setExperimentId = (id: string) => ({
   type: SET_EXPERIMENT_ID,
   payload: id,
+});
+
+export const setEnforceDataBalance = (enforce: boolean) => ({
+  type: SET_DATABALANCE_ENFORCED,
+  payload: enforce,
 });

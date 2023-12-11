@@ -20,6 +20,7 @@ import {
   RIGHT,
   setDisDirection,
   setLastAction,
+  setLastReward,
   STOP_GAME,
   UP,
 } from "../actions";
@@ -35,6 +36,7 @@ export function* moveSaga(params: {
   | PutEffect<{ type: string; payload: ISnakeCoord }>
   | PutEffect<{ type: string; payload: string }>
   | PutEffect<{ type: string; payload: Observation }>
+  | PutEffect<{ type: string; payload: number }>
   | SelectEffect
   | CallEffect<true>
 > {
@@ -51,6 +53,9 @@ export function* moveSaga(params: {
     );
     let num_right: any = yield select(
       (state: IGlobalState) => state.rightObservationCount
+    );
+    let enforce_data_balance: any = yield select(
+      (state: IGlobalState) => state.enforce_data_balance
     );
     if (disallowedDirection) {
       disallowedDirection = disallowedDirection.toLowerCase();
@@ -133,15 +138,19 @@ export function* moveSaga(params: {
 
       // make sure we keep the number of observations balanced
       if (
-        !observation ||
-        (observation.action === "straight" &&
-          observation.reward === 0 &&
-          (right_imbalance || left_imbalance))
+        enforce_data_balance &&
+        (!observation ||
+          (observation.action === "straight" &&
+            observation.reward === 0 &&
+            (right_imbalance || left_imbalance)))
       ) {
         console.log("skipping observation");
         // pass for now
       } else {
-        yield put(addObservation(observation));
+        if (observation) {
+          yield put(setLastReward(observation.reward));
+          yield put(addObservation(observation));
+        }
       }
     } catch (e) {
       console.log(e);
