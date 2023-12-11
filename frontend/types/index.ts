@@ -91,4 +91,13 @@ export type IExperiment = {
   cql_model_url: string;
   behavior_cloning_model_url: string;
   training_data_uploaded_at: string;
+  behavior_cloning_chart_data: IDataPlot | null;
+  rl_chart_data: IDataPlot | null;
+};
+
+export type IDataPlot = {
+  values: number[];
+  xlabel: string;
+  ylabel: string;
+  title: string;
 };

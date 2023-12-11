@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   title: "Preference Arcade",
   description:
     "Incorporate human preferences into autonomous agents with online game play.",
-  icons: ["/favicon.png"],
 };
 const Game_Font = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 

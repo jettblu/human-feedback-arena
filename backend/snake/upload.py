@@ -1,6 +1,8 @@
 import json
 import os
 from google.cloud import storage
+from dotenv import load_dotenv
+load_dotenv()
 
 # uploads file form local computer to google bucket
 
@@ -8,8 +10,8 @@ bucket_name = "snake-ai"
 training_data_bucket_name = "snake-ai-training-data"
 game_play_bucket_name = "snake-ai-game-play"
 model_bucket_name = "snake-ai-model"
-charts_bucket_name = "snake-ai-charts"
-credentials_path = "backend/snake/serviceAccountCredentialsForRLHF.json"
+charts_bucket_name = "snake-ai-chart"
+credentials_path = "snake/serviceAccountCredentialsForRLHF.json"
 
 
 def uploadFile(filePath: str, bucket_name=bucket_name, remove_local_file=True):
@@ -19,10 +21,14 @@ def uploadFile(filePath: str, bucket_name=bucket_name, remove_local_file=True):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(fileName)
     blob.upload_from_filename(filePath)
-    if (remove_local_file):
-        # remove file from local file system
-        os.remove(filePath)
-    return fileName
+    try:
+        if (remove_local_file):
+            # remove file from local file system
+            os.remove(filePath)
+    except:
+        print("Error while deleting file ", filePath)
+    newFilePath = get_file_url(fileName, bucket_name=bucket_name)
+    return newFilePath
 
 
 def get_file_url(fileName, bucket_name=bucket_name):
@@ -32,7 +38,7 @@ def get_file_url(fileName, bucket_name=bucket_name):
 def upload_training_data(training_data, experiment_id, bucket_name=training_data_bucket_name, remove_local_file=True):
     # save training data to file system as json
     training_data_filename = 'training_data_'+str(experiment_id)+'.json'
-    training_data_filepath = "temp/"+training_data_filename
+    training_data_filepath = "/tmp/"+training_data_filename
     json.dump(training_data, open(training_data_filepath, "w"))
     # upload to remote storage
     uploadFile(training_data_filename)

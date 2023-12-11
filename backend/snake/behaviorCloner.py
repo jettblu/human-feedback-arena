@@ -43,17 +43,21 @@ class Policy_Model(nn.Module):
             state = torch.FloatTensor([state])
 
             action_probs = self.forward(state)
-            print(action_probs)
             # choose the action with the highest probability and set
             # that action to 1 and the others to 0
             action[torch.argmax(action_probs).item()] = 1
         return action
 
     def train_step(self, input, labels):
+
         self.optimizer.zero_grad()
+
         output = self.forward(input)
+
         loss = self.loss(output, labels)
+
         loss.backward()
+
         self.optimizer.step()
         return loss.item()
 
@@ -114,17 +118,19 @@ class Policy_Model(nn.Module):
 
 def run_behavior_cloning(data_source, experiment_id):
     # for data convert action to one-hot vector
+    formatted_data_source = []
     for data in data_source:
         action = data["action"]
         action = action_encoder(action)
-        print(action)
+        new_data = data
         data["action"] = action
+        formatted_data_source.append(new_data)
 
     # split into training and validation data
-    random.shuffle(data_source)
-    split = int(len(data_source) * 0.8)
-    training_data = data_source[:split]
-    validation_data = data_source[split:]
+    random.shuffle(formatted_data_source)
+    split = int(len(formatted_data_source) * 0.8)
+    training_data = formatted_data_source[:split]
+    validation_data = formatted_data_source[split:]
 
     print("Training on {} samples".format(len(training_data)))
     print("Validating on {} samples".format(len(validation_data)))
@@ -136,14 +142,13 @@ def run_behavior_cloning(data_source, experiment_id):
     Epochs = 50
     Batch_Size = 100
 
-    print("Training on {} samples".format(len(training_data)))
     validation_scores = []
     for e in range(Epochs):
         print("Epoch: {}".format(e))
         epoch_loss = []
         # scramble training data
         random.shuffle(training_data)
-        if (len(training_data < Batch_Size)):
+        if (len(training_data) < Batch_Size):
             Batch_Size = len(training_data)
         for i in range(len(training_data) // Batch_Size):
             batch = training_data[i * Batch_Size: (i + 1) * Batch_Size]
@@ -154,8 +159,10 @@ def run_behavior_cloning(data_source, experiment_id):
                 action = data["action"]
                 states.append(state)
                 labels.append(action)
-            loss = model.train_step(torch.FloatTensor(states),
-                                    torch.FloatTensor(labels))
+            states = torch.FloatTensor(states)
+            labels = torch.FloatTensor(labels)
+            loss = model.train_step(states,
+                                    labels)
             epoch_loss.append(loss)
         avg_epoch_loss = sum(epoch_loss) / len(epoch_loss)
         # now compute validation accuracy
@@ -174,12 +181,15 @@ def run_behavior_cloning(data_source, experiment_id):
         print("Epoch {}, loss: {}, validation accuracy: {}".format(
             e, avg_epoch_loss, validation_accuracy))
 
+    print("Making plot")
     # now make a plot of the validation scores
-    plot_name = "temp/behavior_cloning_" + \
-        str(experiment_id)+"validation_scores.png"
+    plot_name = "/tmp/behavior_cloning_" + \
+        str(experiment_id)+"validation_scores.json"
     save_plot_just_scores(validation_scores, plot_name, xlabel="Epochs",
                           ylabel="Validation Accuracy", title="Behavior Cloning Validation Accuracy")
+    print("Plot saved")
 
+    print("Playing game")
     # now try playing the game with the trained model
     game = SnakeGameAI()
     game.reset()
@@ -195,9 +205,9 @@ def run_behavior_cloning(data_source, experiment_id):
         final_move = model.act(state_old, .25)
         # perform move and get new state
         reward, done, score = game.play_step(final_move)
-        if i == num_games - 1:
-            frames.append(game.display.copy())
         if done:
+            print("Game {} score: {}".format(i, score))
+            frames = game.get_frames()
             scores.append(score)
             game.reset()
             i += 1
@@ -205,15 +215,19 @@ def run_behavior_cloning(data_source, experiment_id):
     avg_score = sum(scores) / len(scores)
 
     # save video
-    game_play_vid_path = "temp/gameplay_behavior_cloning" + \
+    game_play_vid_path = "/tmp/gameplay_behavior_cloning_" + \
         str(experiment_id)+".gif"
+    print("Saving animation")
     save_animation(frames, game_play_vid_path)
+    print("Animation saved")
 
     # save model
-    model_path = "temp/behavior_cloning_model_"+str(experiment_id)+".pth"
+    print("Saving model")
+    model_path = "/tmp/behavior_cloning_model_"+str(experiment_id)+".pth"
     model.save(model_path)
+    print("Model saved")
 
-    return avg_score, game_play_vid_path, plot_name
+    return avg_score, game_play_vid_path, plot_name, model_path
 
 
 # if __name__ == "__main__":

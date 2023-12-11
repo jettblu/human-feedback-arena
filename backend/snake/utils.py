@@ -1,3 +1,4 @@
+from collections import namedtuple
 import numpy as np
 from .game import Direction, Point
 
@@ -10,12 +11,27 @@ def action_encoder(action, one_hot=True):
             return 1
         elif action == "left":
             return 2
+        if action == [1, 0, 0]:
+            return 0
+        elif action == [0, 1, 0]:
+            return 1
+        elif action == [0, 0, 1]:
+            return 2
+    # if action has already been encoded
+    else:
+        if (type(action) == list):
+            return action
     if action == "straight":
         return [1, 0, 0]
     elif action == "right":
         return [0, 1, 0]
     elif action == "left":
         return [0, 0, 1]
+
+
+# create named tuple type
+Observation = namedtuple(
+    'Data', ['state', 'action', 'reward', 'nextState', 'done'])
 
 
 def format_data(training_data, one_hot=True):
@@ -30,7 +46,8 @@ def format_data(training_data, one_hot=True):
         done = False
         if reward == -1:
             done = True
-        formatted_data.append((state, action, reward, nextState, done))
+        formatted_data.append(Observation(
+            state, action, reward, nextState, done))
     return formatted_data
 
 

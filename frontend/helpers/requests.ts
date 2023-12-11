@@ -1,4 +1,9 @@
-import { IExperiment, IExperimentSummary, Observation } from "@/types";
+import {
+  IDataPlot,
+  IExperiment,
+  IExperimentSummary,
+  Observation,
+} from "@/types";
 const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default async function getExperimentSummary(
@@ -31,6 +36,20 @@ export async function getExperiment(
       method: "GET",
     });
     const experiment: IExperiment = await res.json();
+    if (experiment.behavior_cloning_train_chart_url) {
+      const plotData = await getDataFRomUrl(
+        experiment.behavior_cloning_train_chart_url
+      );
+      console.log("plot data", plotData);
+      experiment.behavior_cloning_chart_data = plotData;
+    }
+    if (experiment.agent_rl_training_chart_url) {
+      const plotData = await getDataFRomUrl(
+        experiment.agent_rl_training_chart_url
+      );
+      experiment.rl_chart_data = plotData;
+    }
+    console.log(experiment);
     return experiment;
   } catch (err) {
     console.log(err);
@@ -81,8 +100,23 @@ export async function getAllExperiments(): Promise<IExperiment[] | null> {
   }
 }
 
+export async function getDataFRomUrl(url: string): Promise<IDataPlot | null> {
+  // fetch the experiment data
+  try {
+    const res: Response = await fetch(url, {
+      method: "GET",
+    });
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
 export async function uploadTrainingData(
   experiment_id: string,
+  collection_time_seconds: number,
   training_data: Observation[]
 ): Promise<boolean> {
   const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -96,7 +130,10 @@ export async function uploadTrainingData(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ training_data: training_data }),
+      body: JSON.stringify({
+        training_data: training_data,
+        collection_time_seconds: collection_time_seconds,
+      }),
     });
     const experiment: IExperiment = await res.json();
     return true;

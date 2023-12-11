@@ -31,6 +31,12 @@ urlpatterns = [
          views.GetExperimentById.as_view()),
     path('api/experiment/<str:experiment_id>/uploadTrainingData/',
          views.UploadTrainingData.as_view()),
+    path('api/test/',
+         views.TestPing.as_view()),
+    path('api/test2/',
+         views.TestUpload.as_view()),
+    # path('api/celeryTest/', views.CeleryTest.as_view()),
+    path("api/test3/", views.Experiment_Test.as_view()),
     # path('api/experimentSummary/<str:experiment_name>/',
     #      views.GetExperimentSummary.as_view()),
 ]

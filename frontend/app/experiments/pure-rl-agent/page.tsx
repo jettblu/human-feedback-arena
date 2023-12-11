@@ -1,9 +1,16 @@
 // this page will include a short descriptor of the base rl agent trained for two hundred episodes
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="max-w-5xl mx-auto mt-20">
+      <Link
+        href="/"
+        className="text-md hover:underline hover:text-blue-600 transition duration-100"
+      >
+        Back to Home
+      </Link>
       <h1 className="text-3xl text-red-500">Pure Autonomous Snake Agent</h1>
       <p className="text-xl text-gray-500">
         This agent is used as a baseline for finetuning given human expert game

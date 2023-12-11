@@ -1,10 +1,12 @@
 // get slug from url and fetch data from api
 
+import DisplayExperiment from "@/components/experiments/DisplayExperiment";
 import { getExperiment } from "@/helpers/requests";
-import { IExperiment } from "@/types";
+import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 
 export default async function Page({ params }: { params: { slug: string } }) {
+  noStore();
   const experiment_id = params.slug;
 
   const experiment = await getExperiment(experiment_id);
@@ -24,28 +26,6 @@ export default async function Page({ params }: { params: { slug: string } }) {
           No experiment found! 💔
         </div>
       )}
-    </div>
-  );
-}
-
-function DisplayExperiment(params: { experiment: IExperiment }) {
-  const experiment = params.experiment;
-  return (
-    <div>
-      <div className="flex flex-row py-2">
-        <h2 className="text-2xl text-red-500">{experiment.name}</h2>
-        <div className="flex-grow">
-          <p className="text-xs text-gray-400 text-right">
-            {experiment.created_at}
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-col space-y-1">
-        <h3 className="text-md text-yellow-500">Description</h3>
-        <div className="text-left text-lg text-gray-400">
-          {experiment.description}
-        </div>
-      </div>
     </div>
   );
 }

@@ -301,9 +301,18 @@ export function getExpectedCollectionTimeString(
   if (dataBalanceEnforced) {
     numSeconds = numSeconds * 5;
   }
-  if (numSeconds < 60) {
-    return `${Math.floor(numSeconds)} seconds`;
+  return timeStringFromSeconds(numSeconds);
+}
+
+export function timeStringFromSeconds(seconds: number): string {
+  try {
+    if (seconds < 60) {
+      return `${Math.floor(seconds)} seconds`;
+    }
+    const numMinutes = Math.floor(seconds / 60);
+    return `${numMinutes} minutes`;
+  } catch (e) {
+    console.error(e);
+    return "5 minutes";
   }
-  const numMinutes = Math.floor(numSeconds / 60);
-  return `${numMinutes} minutes`;
 }

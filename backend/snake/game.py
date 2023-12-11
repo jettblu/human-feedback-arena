@@ -1,12 +1,10 @@
-import pygame
+import numpy as np
 import random
 from enum import Enum
 from collections import namedtuple
 import numpy as np
 
-pygame.init()
-font = pygame.font.Font('snake/arial.ttf', 25)
-# font = pygame.font.SysFont('arial', 25)
+# font = pygame.font.Font('snake/arial.ttf', 25)
 
 
 class Direction(Enum):
@@ -25,8 +23,8 @@ GREEN1 = (0, 255, 0)
 GREEN2 = (0, 255, 100)
 BLACK = (0, 0, 0)
 
-BLOCK_SIZE = 20
-SPEED = 40
+BLOCK_SIZE: int = 20
+SPEED: int = 40
 
 
 class SnakeGameAI:
@@ -34,17 +32,14 @@ class SnakeGameAI:
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
-        # init display
-        self.display = pygame.display.set_mode((self.w, self.h))
-        pygame.display.set_caption('Snake')
-        self.clock = pygame.time.Clock()
+        self.frames_list = []
         self.reset()
 
     def reset(self):
         # init game state
         self.direction = Direction.RIGHT
 
-        self.head = Point(self.w/2, self.h/2)
+        self.head = Point(int(self.w//2), int(self.h//2))
         self.snake = [self.head,
                       Point(self.head.x-BLOCK_SIZE, self.head.y),
                       Point(self.head.x-(2*BLOCK_SIZE), self.head.y)]
@@ -52,22 +47,21 @@ class SnakeGameAI:
         self.score = 0
         self.food = None
         self._place_food()
+        self.frames_list = []
         self.frame_iteration = 0
 
     def _place_food(self):
         x = random.randint(0, (self.w-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
         y = random.randint(0, (self.h-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
-        self.food = Point(x, y)
+        self.food = Point(int(x), int(y))
         if self.food in self.snake:
             self._place_food()
 
+    def get_frames(self):
+        return self.frames_list
+
     def play_step(self, action):
         self.frame_iteration += 1
-        # 1. collect user input
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
 
         # 2. move
         self._move(action)  # update the head
@@ -91,7 +85,6 @@ class SnakeGameAI:
 
         # 5. update ui and clock
         self._update_ui()
-        self.clock.tick(SPEED)
         # 6. return game over and score
         return reward, game_over, self.score
 
@@ -107,24 +100,29 @@ class SnakeGameAI:
 
         return False
 
-    def get_surface(self):
-        return pygame.surfarray.array3d(self.display)
-
     def _update_ui(self):
-        self.display.fill(BLACK)
+        # create new frame using numpy
+        # by default the frame is black
+        img = np.zeros((self.h, self.w, 3),
+                       dtype=np.uint8)  # RGB color
 
+        # draw snake
         for pt in self.snake:
-            pygame.draw.rect(self.display, GREEN1, pygame.Rect(
-                pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, GREEN2,
-                             pygame.Rect(pt.x+4, pt.y+4, 12, 12))
+            draw_rectangle(img, (pt.x, pt.y),
+                           (pt.x+BLOCK_SIZE, pt.y+BLOCK_SIZE), GREEN1, -1)
+            draw_rectangle(img, (pt.x+4, pt.y+4),
+                           (pt.x+BLOCK_SIZE-4, pt.y+BLOCK_SIZE-4), GREEN2, -1)
 
-        pygame.draw.rect(self.display, RED, pygame.Rect(
-            self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
+        # draw food
+        draw_rectangle(img, (self.food.x, self.food.y),
+                       (self.food.x+BLOCK_SIZE, self.food.y+BLOCK_SIZE), RED, -1)
 
-        text = font.render("Score: " + str(self.score), True, WHITE)
-        self.display.blit(text, [0, 0])
-        pygame.display.flip()
+        # draw score
+        text = "Score: " + str(self.score)
+        # cv2.putText(img=img, text=text, org=(
+        #     3, 30), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=WHITE, thickness=2)
+        # add frame to list of frames
+        self.frames_list.append(img)
 
     def _move(self, action):
         # [straight, right, left]
@@ -155,4 +153,15 @@ class SnakeGameAI:
         elif self.direction == Direction.UP:
             y -= BLOCK_SIZE
 
-        self.head = Point(x, y)
+        self.head = Point(int(x), int(y))
+
+
+def draw_rectangle(img, pt1, pt2, color, dummy):
+    # draw rectangle on image without using opencv
+    # pt1: top left point
+    # pt2: bottom right point
+    # color: rgb tuple
+    # fill rectangle
+    for i in range(pt1[1], pt2[1]):
+        for j in range(pt1[0], pt2[0]):
+            img[i][j] = color

@@ -52,6 +52,7 @@ class CQLAgent():
 
         self.optimizer = optim.Adam(params=self.network.parameters(), lr=1e-3)
 
+    # gets action from model with option epsilon randomness
     def get_action(self, state, epsilon):
         actions = [0, 0, 0]
         if random.random() > epsilon:
@@ -60,7 +61,7 @@ class CQLAgent():
             self.network.eval()
             with torch.no_grad():
                 action_values = self.network(state)
-            self.network.train()
+            # self.network.train()
             action_index = np.argmax(action_values.cpu().data.numpy())
             actions[action_index] = 1
         else:
@@ -103,7 +104,9 @@ class CQLAgent():
         # each is currently a tuples of tensors
         # we want to convert them to tensors
         states = torch.from_numpy(np.vstack(states)).float().to(self.device)
-        actions = torch.from_numpy(np.vstack(actions)).long().to(self.device)
+        actions = np.vstack(actions)
+        actions = torch.from_numpy(
+            actions).long().to(self.device)
         rewards = torch.from_numpy(np.vstack(rewards)).float().to(self.device)
         next_states = torch.from_numpy(
             np.vstack(next_states)).float().to(self.device)
@@ -158,6 +161,7 @@ def train():
 
 
 def run_cql(training_data, experiment_id, num_epochs=20):
+    print("Training cql agent on {} samples".format(len(training_data)))
     formatted_data = format_data(training_data, one_hot=False)
     # train agent on training data
 
@@ -194,19 +198,17 @@ def run_cql(training_data, experiment_id, num_epochs=20):
         # perform move and get new state
         reward, done, score = game.play_step(final_move)
 
-        if i == num_games - 1:
-            frames.append(game.display.copy())
-
         if done:
+            frames = game.get_frames()
             game.reset()
             scores.append(score)
             i += 1
 
     avg_score = sum(scores) / len(scores)
-    animation_name = "temp/gameplay_cql_"+str(experiment_id)+".gif"
+    animation_name = "/tmp/gameplay_cql_"+str(experiment_id)+".gif"
     save_animation(frames, animation_name)
     # save model
-    model_path = "temp/cql_model_"+str(experiment_id)+".pth"
+    model_path = "/tmp/cql_model_"+str(experiment_id)+".pth"
     torch.save(agent.network.state_dict(), model_path)
     return avg_score, animation_name, model_path
 

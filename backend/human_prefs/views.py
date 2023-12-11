@@ -1,8 +1,8 @@
 import json
 from django.shortcuts import render
-from .tasks import run_entire_training_process
+from .tasks import run_entire_training_process, test_task, test_task2
 
-from snake.upload import uploadFile, get_file_url
+from snake.upload import uploadFile, get_file_url, training_data_bucket_name
 from .models import Experiment
 from .serializers import Experiment_Serializer
 from rest_framework import viewsets
@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from datetime import datetime
 from datetime import timezone
+
 
 # Create your views here.
 
@@ -42,13 +43,55 @@ class GetExperimentById(APIView):
         now = datetime.now(timezone.utc)
         created_at = _pretty_time_elapsed(exp.created_at, now)
         updated_at = _pretty_time_elapsed(exp.updated_at, now)
-        training_data_uploaded_at = _pretty_time_elapsed(
-            exp.training_data_uploaded_at, now)
+        training_data_uploaded_at = ""
+        if (exp.training_data_uploaded_at):
+            training_data_uploaded_at = _pretty_time_elapsed(
+                exp.training_data_uploaded_at, now)
         exp_to_return = exp
-        exp_to_return.created_at = created_at
-        exp_to_return.updated_at = updated_at
-        exp_to_return.training_data_uploaded_at = training_data_uploaded_at
+        # serialize the experiment
+        exp_to_return = Experiment_Serializer(exp_to_return).data
+        exp_to_return["created_at"] = created_at
+        exp_to_return["updated_at"] = updated_at
+        exp_to_return["training_data_uploaded_at"] = training_data_uploaded_at
         return Response(exp_to_return)
+
+
+class TestPing(APIView):
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        return Response({"ping": "pong"})
+
+
+class TestUpload(APIView):
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        training_data_path = "training data dev/training_data_ec41bcaf-9dc6-42ec-a74f-b3e86afedb13.json"
+        uploadFile(training_data_path,
+                   bucket_name=training_data_bucket_name, remove_local_file=False)
+        return Response({"done": "true"})
+
+
+# class CeleryTest(APIView):
+#     renderer_classes = [JSONRenderer]
+
+#     def get(self, request):
+#         task_id = test_task.delay()
+#         return Response({"task_id": "test"})
+
+
+class Experiment_Test(APIView):
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        # run_entire_training_process(training_data, experiment_id
+        experiment_id = "ec41bcaf-9dc6-42ec-a74f-b3e86afedb13"
+        training_data = json.load(
+            open("training data dev/training_data_ec41bcaf-9dc6-42ec-a74f-b3e86afedb13.json"))
+        task_id = run_entire_training_process(
+            training_data, experiment_id)
+        return Response({"task_complete": True})
 
 
 # this class will receive training data as part of post request body
@@ -58,30 +101,49 @@ class UploadTrainingData(APIView):
     def post(self, request, experiment_id):
         exp = Experiment.objects.get(id=experiment_id)
         training_data = request.data['training_data']
+        print("training_data", training_data)
+        collection_time_seconds = request.data['collection_time_seconds']
+        print("collection_time_seconds", collection_time_seconds)
         # save training data to file system as json
-        training_data_filename = 'training_data_'+str(experiment_id)+'.json'
+        training_data_filename = '/tmp/training_data_' + \
+            str(experiment_id)+'.json'
         save_object_to_file_system(training_data, training_data_filename)
         # upload to remote storage
-        uploadFile(training_data_filename)
+        uploadFile(training_data_filename,
+                   bucket_name=training_data_bucket_name)
         # get url of uploaded file
         training_data_url = get_file_url(training_data_filename)
         # save url to db
         exp.training_data_url = training_data_url
         exp.is_training_data_uploaded = True
-        training_data_uploaded_at = _pretty_time_elapsed(
-            exp.training_data_uploaded_at, now)
-        exp.training_data_uploaded_at = training_data_uploaded_at
+        # save total time to collect observations
+        exp.collection_time_seconds = collection_time_seconds
+        exp.observation_count = len(training_data)
+        exp.training_data_uploaded_at
+        now = datetime.now(timezone.utc)
+        exp.training_data_uploaded_at = now
         exp.save()
-        # get time elapsed between created at and now
+
+        # now we want to run the entire training process
+
+        exp = run_entire_training_process(
+            training_data, experiment_id
+        )
         now = datetime.now(timezone.utc)
         created_at = _pretty_time_elapsed(exp.created_at, now)
         updated_at = _pretty_time_elapsed(exp.updated_at, now)
+        training_data_uploaded_at = ""
+        if (exp.training_data_uploaded_at):
+            training_data_uploaded_at = _pretty_time_elapsed(
+                exp.training_data_uploaded_at, now)
 
-        # now we want to run the entire training process
-        task_id = run_entire_training_process.delay(
-            training_data, experiment_id)
+        # serialize the experiment
+        exp_to_return = Experiment_Serializer(exp).data
+        exp_to_return["created_at"] = created_at
+        exp_to_return["updated_at"] = updated_at
+        exp_to_return["training_data_uploaded_at"] = training_data_uploaded_at
 
-        return Response({'name': exp.name, 'description': exp.description, "created_at": created_at, "updated_at": updated_at, "training_data_url": training_data_url, "training_data_uploaded_at": training_data_uploaded_at})
+        return Response(exp_to_return)
 
 
 def save_object_to_file_system(obj, file_name):

@@ -1,5 +1,4 @@
 import uuid
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -32,11 +31,11 @@ class Experiment(models.Model):
     training_data_url = models.TextField(
         'url of the training data', db_index=True, blank=True, null=True)
     rl_human_fusion_score = models.FloatField(
-        'rl score after averaging over ten games', db_index=True, blank=True, null=True)
+        'rl score after averaging over ten games', db_index=True, blank=True, default=0)
     immitation_score = models.FloatField(
-        'immitation score after averaging over ten games', db_index=True, blank=True, null=True)
+        'immitation score after averaging over ten games', db_index=True, blank=True, default=0)
     cql_score = models.FloatField(
-        'cql score after averaging over ten games', db_index=True, blank=True, null=True)
+        'cql score after averaging over ten games', db_index=True, blank=True, default=0)
     is_training_data_uploaded = models.BooleanField(
         'is training data uploaded', default=False)
     is_done_training = models.BooleanField(

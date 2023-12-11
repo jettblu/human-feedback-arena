@@ -27,6 +27,11 @@ export async function LeaderBoard() {
             No experiments yet!
           </div>
         )}
+        {!experiments && (
+          <div className="text-center text-xl text-gray-400">
+            Loading experiments...
+          </div>
+        )}
         {experiments &&
           experiments.length > 0 &&
           experiments.map((experiment) => (

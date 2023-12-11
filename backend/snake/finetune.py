@@ -8,10 +8,8 @@ from .utils import action_encoder
 from .video import save_animation
 
 
-model_path = "model/pure_rl_200_iterations.pth"
-
-
-def run_finetuning(training_data, experiment_id, num_epochs=20):
+def run_finetuning(training_data, experiment_id, num_epochs=20, model_path="model/pure_rl_200_iterations.pth"):
+    print("Finetuning agent on {} samples".format(len(training_data)))
     formatted_data = []
     for data in training_data:
         state = data["state"]
@@ -27,7 +25,10 @@ def run_finetuning(training_data, experiment_id, num_epochs=20):
     # load into agent memory
     agent = Agent()
     agent.n_games = 200
-    agent.model.load(model_path)
+    try:
+        agent.model.load(model_path)
+    except:
+        print("Could not load pre trained model")
     for data in formatted_data:
         state, action, reward, nextState, done = data
         agent.remember(state, action, reward, nextState, done)
@@ -59,8 +60,8 @@ def run_finetuning(training_data, experiment_id, num_epochs=20):
         plot_scores.append(score)
 
     # save figure
-    figure_path = "temp/finetuning_" + \
-        str(experiment_id)+str(num_epochs)+"epochs.png"
+    figure_path = "/tmp/finetuning_" + \
+        str(experiment_id)+str(num_epochs)+"epochs.json"
     figure_title = "Finetuning with "+str(num_epochs)+" epochs"
     save_plot_just_scores(plot_scores, figure_path, xlabel="Epochs",
                           ylabel="Score", title=figure_title)
@@ -76,21 +77,20 @@ def run_finetuning(training_data, experiment_id, num_epochs=20):
         final_move = agent.get_action(state_old)
         # perform move and get new state
         reward, done, score = game.play_step(final_move)
-        if i == num_games - 1:
-            frames.append(game.display.copy())
         if done:
+            frames = game.get_frames()
             game.reset()
             scores.append(score)
             i += 1
 
     # save video
-    game_play_vid_path = "temp/gameplay_finetuning_"+str(experiment_id)+".gif"
+    game_play_vid_path = "/tmp/gameplay_finetuning_"+str(experiment_id)+".gif"
     save_animation(frames, game_play_vid_path)
     final_avg_score = sum(scores) / len(scores)
 
     # save model
-    model_path = "temp/finetuned_model_"+str(experiment_id)+".pth"
-    agent.model.save("model/finetuned_model.pth")
+    model_path = "/tmp/finetuned_model_"+str(experiment_id)+".pth"
+    agent.model.save(model_path)
 
     return final_avg_score, game_play_vid_path, figure_path, model_path
 

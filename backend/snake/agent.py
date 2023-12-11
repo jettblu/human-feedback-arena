@@ -5,12 +5,12 @@ import numpy as np
 from collections import deque
 from .models import Linear_QNet, QTrainer
 from .game import SnakeGameAI, Direction, Point
-from .helper import plot, save_plot
+from .helper import save_plot
 from .upload import uploadFile
-from .video import save_animation, save_frames
+from .video import save_animation
 
 MAX_MEMORY = 100_000
-BATCH_SIZE = 1000
+BATCH_SIZE = 256
 LR = 0.001
 
 
@@ -153,7 +153,7 @@ def train():
             total_score += score
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
-            plot(plot_scores, plot_mean_scores)
+            # plot(plot_scores, plot_mean_scores)
     # save figure
     random_number = random.randint(0, 10000)
     save_plot(plot_scores, plot_mean_scores, f"pure_rl_" +
