@@ -52,12 +52,12 @@ function ListItemExperiment(params: { experiment: IExperiment }) {
           ? experiment.rl_human_fusion_score
           : "?"}
       </div>
-      <Link href={`/experiments/${experiment.id}`}>
-        <h2 className="text-lg text-gray-500 hover:cursor-pointer hover:underline my-auto">
+      <Link href={`/experiments/${experiment.id}`} className="flex-grow">
+        <h2 className="text-lg text-gray-500 hover:cursor-pointer hover:underline my-auto  text-left md:text-center">
           {experiment.name}
         </h2>
       </Link>
-      <div className="flex-grow relative">
+      <div className="md:flex-grow relative invisible md:visible">
         <div className="">
           <p className="text-xs text-gray-400 text-right">
             {experiment.created_at}
