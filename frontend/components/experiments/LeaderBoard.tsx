@@ -1,5 +1,4 @@
 // this should display a list of experiments
-"use client";
 
 import { getAllExperiments } from "@/helpers/requests";
 import { unstable_noStore as noStore } from "next/cache";
