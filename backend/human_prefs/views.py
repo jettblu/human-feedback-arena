@@ -109,10 +109,8 @@ class UploadTrainingData(APIView):
             str(experiment_id)+'.json'
         save_object_to_file_system(training_data, training_data_filename)
         # upload to remote storage
-        uploadFile(training_data_filename,
-                   bucket_name=training_data_bucket_name)
-        # get url of uploaded file
-        training_data_url = get_file_url(training_data_filename)
+        training_data_url = uploadFile(training_data_filename,
+                                       bucket_name=training_data_bucket_name)
         # save url to db
         exp.training_data_url = training_data_url
         exp.is_training_data_uploaded = True
