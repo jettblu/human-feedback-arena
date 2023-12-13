@@ -10,6 +10,8 @@ This project offers a full stack solution for training machine learning models w
 
 **Frontend:** The frontend is a web application for displaying data and collection human gameplay observations. Written in typescript with the NextJs framework.
 
+![Screenshot of a human expert playing the game of snake.](frontend/public/experiments/snake/game%20screen.png)
+
 # Models
 
 Every experiment creates three distinct models on the backend. These models are listed below:
@@ -28,6 +30,17 @@ We found the best scoring model to be the pre-trained RL-agent finetuned on huma
 
 Deployment docs are still being created. This section will be updated once we have more thorough deployment documentation.
 
-**Backend Api:** Google App Standard Engine F4 Instance
-**Postgres Database:** Supabase
 **Frontend:** Vercel
+
+**Backend Api:** Google App Standard Engine F4 Instance
+
+**Postgres Database:** Supabase
+
+# Known Issues
+
+This project is still in active development. While essential features are present there are a few production bugs that may affect performance.
+
+- Production response times are _slow_, due to cold starts on the backend hosting provider.
+- Client side snake game becomes laggy after around five minutes of gameplay.
+
+- Backend server msay run out of memory while training models, depending on request load.
