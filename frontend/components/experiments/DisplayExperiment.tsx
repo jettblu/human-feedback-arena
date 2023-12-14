@@ -5,10 +5,33 @@ import { timeStringFromSeconds } from "@/helpers/data";
 import exp from "constants";
 import Link from "next/link";
 import Plot from "./Plot";
+import { getExperiment } from "@/helpers/requests";
 
-export default function DisplayExperiment(params: { experiment: IExperiment }) {
+export default async function DisplayExperiment(params: {
+  experiment_id: string;
+}) {
+  const { experiment_id } = params;
+  const experiment = await getExperiment(experiment_id);
+  return (
+    <div>
+      {experiment && (
+        <DisplayExperimentView experiment={experiment} key={experiment.id} />
+      )}
+      {!experiment && (
+        <div className="text-center text-xl text-gray-400">
+          No experiment found! 💔
+        </div>
+      )}
+    </div>
+  );
+}
+
+export async function DisplayExperimentView(params: {
+  experiment: IExperiment;
+}) {
   const { experiment } = params;
   const timeString = timeStringFromSeconds(experiment.collection_time_seconds);
+
   return (
     <div>
       <div className="flex flex-row py-2">
