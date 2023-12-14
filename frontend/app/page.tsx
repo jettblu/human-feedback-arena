@@ -1,5 +1,7 @@
 import { LeaderBoard } from "@/components/experiments/LeaderBoard";
+import LeaderBoardLoading from "@/components/experiments/LeaderBoardLoading";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Home() {
   return (
@@ -46,7 +48,9 @@ export default function Home() {
           </div>
         </div>
         <div className="mx-auto max-w-5xl w-full mt-8 border border-2 px-2 py-2 border-yellow-500/80">
-          <LeaderBoard />
+          <Suspense fallback={<LeaderBoardLoading />}>
+            <LeaderBoard />
+          </Suspense>
         </div>
       </div>
     </main>
