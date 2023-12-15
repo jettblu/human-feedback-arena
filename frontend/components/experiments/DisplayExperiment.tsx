@@ -124,9 +124,7 @@ function CompleteView(params: { experiment: IExperiment }) {
         <h3 className="text-md text-yellow-500">Immitation Agent</h3>
         <p className="text-lg text-gray-200">
           Average Score on Ten Games:{" "}
-          <span className="text-yellow-500">
-            {experiment.rl_human_fusion_score}
-          </span>
+          <span className="text-yellow-500">{experiment.immitation_score}</span>
         </p>
         <p className="text-lg text-gray-200">
           This autonomous agent is trained to mimic the original human player.
@@ -152,9 +150,7 @@ function CompleteView(params: { experiment: IExperiment }) {
         <h3 className="text-md text-yellow-500">Inverse Q Learning Agent</h3>
         <p className="text-lg text-gray-200">
           Average Score on Ten Games:{" "}
-          <span className="text-yellow-500">
-            {experiment.rl_human_fusion_score}
-          </span>
+          <span className="text-yellow-500">{experiment.cql_score}</span>
         </p>
         <p className="text-lg text-gray-200">
           This agent uses inverse q learning to estimate the q values for a
